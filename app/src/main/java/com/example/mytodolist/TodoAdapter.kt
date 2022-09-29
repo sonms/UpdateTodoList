@@ -24,7 +24,7 @@ class TodoAdapter : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
     }
     //checkboxstatus에서 indexoutofboundsexception
     override fun onBindViewHolder(holder: TodoViewHolder, position: Int) {
-        holder.bind(listData[position],checkBoxStatus[position], position)
+        holder.bind(listData[position]/*,checkBoxStatus[position]*/, position)
     }
 
     override fun getItemCount(): Int {
@@ -39,16 +39,16 @@ class TodoAdapter : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
         var checkBox : CheckBox = todoItemBinding.checkBox
         //usercheckstatus = checkboxdata , user = todolistdata
         //checkboxuser = checkbox
-        fun bind(data : TodoListData, checkData : CheckBoxData, position: Int) {
+        fun bind(data : TodoListData, /*checkData : CheckBoxData,*/ position: Int) {
             this.position = position
             todoItemBinding.todoText.text = data.content
 
-            checkBox.isChecked = checkData.checked
+            /*checkBox.isChecked = checkData.checked
 
             checkBox.setOnClickListener {
                 checkData.checked = checkBox.isChecked
                 notifyItemChanged(adapterPosition)
-            }
+            }*/
         }
     }
 }
