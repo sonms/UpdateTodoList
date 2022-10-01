@@ -23,6 +23,7 @@
             android:id="@+id/check_box"
             android:layout_width="30dp"
             android:layout_height="30dp"
+            android:onClick="onCheckboxClicked"
             />
         <TextView
             android:id="@+id/todo_text"
