@@ -1,15 +1,25 @@
 package com.example.mytodolist.navigation
 
+import android.app.Activity.RESULT_OK
+import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.mytodolist.R
-import com.example.mytodolist.TodoAdapter
-import com.example.mytodolist.TodoListData
+import com.example.mytodolist.Adapter.TodoAdapter
+import com.example.mytodolist.EditActivity
 import com.example.mytodolist.databinding.FragmentHomeBinding
+import com.example.mytodolist.model.TodoListData
+import androidx.activity.result.contract.ActivityResultContracts
+import com.example.mytodolist.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -25,11 +35,13 @@ class HomeFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-
-
+    var i = 4
     private lateinit var homeBinding: FragmentHomeBinding
     private var todoAdapter : TodoAdapter? = null
-    private val data : MutableList<TodoListData> = mutableListOf()
+    private var dataPosition = 0 //수정시 데이터를 가져오기위한 인덱스
+    private var checkBoxPosition = 0
+    //모든 item
+    private var data : MutableList<TodoListData> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,26 +58,119 @@ class HomeFragment : Fragment() {
         homeBinding = FragmentHomeBinding.inflate(inflater,container,false)
 
         initRecyclerView()
+        initSwipeRefrech()
+
+        //새로고침 클릭 시 애니메이션
+        val reflashBtn : Button = homeBinding.reflashButton
+        reflashBtn.setOnClickListener {
+
+            //초기화
+            data.clear()
+
+            todoAdapter!!.listData = dataSet()
+
+            todoAdapter!!.notifyDataSetChanged()
+
+            homeBinding.recyclerView.startLayoutAnimation()
+        }
+
+        /*위로 새로고침하는 방식*/
+
+        //type으로 추가인지 수정인지 받아오기
+        homeBinding.fabAdd.setOnClickListener {
+            val intent = Intent(activity, EditActivity::class.java).apply {
+                putExtra("type","ADD")
+            }
+            requestActivity.launch(intent)
+
+            todoAdapter!!.notifyDataSetChanged()
+        }
+
+        todoAdapter!!.setItemCheckBoxClickListener(object : TodoAdapter.ItemCheckBoxClickListener{
+            override fun onClick(view: View, position: Int, itemId: Int) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val todoListData = data[position]
+                    checkBoxPosition = position
+                    data[checkBoxPosition].isChecked = todoListData.isChecked
+
+                    todoListData.isChecked = !todoListData.isChecked
+                }
+            }
+        })
+
+        todoAdapter!!.setItemClickListener(object :TodoAdapter.ItemClickListener{
+            override fun onClick(view: View, position: Int, itemId: Int) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val todo = data[position]
+                    dataPosition = position
+                    val intent = Intent(activity, EditActivity::class.java).apply {
+                        putExtra("type", "EDIT")
+                        putExtra("item", todo)
+                    }
+                    requestActivity.launch(intent)
+                }
+            }
+        })
+
 
         return homeBinding.root
     }
 
+    private val requestActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == RESULT_OK) {
+            //getSerializableExtra = intent의 값을 보내고 받을때사용
+            //타입 변경을 해주지 않으면 Serializable객체로 만들어지니 as로 캐스팅해주자
+            val todo = it.data?.getSerializableExtra("todo") as TodoListData
+
+            when(it.data?.getIntExtra("flag", -1)) {
+                0 -> {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        data.add(todo)
+                    }
+                    Toast.makeText(activity, "추가되었습니다.", Toast.LENGTH_SHORT).show()
+                }
+                1 -> {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        data[dataPosition] = todo
+                    }
+                    Toast.makeText(activity, "수정되었습니다.", Toast.LENGTH_SHORT).show()
+                }
+            }
+            todoAdapter!!.notifyDataSetChanged()
+        }
+    }
+
+
+    //나중에 데이터 받아오는 곳
+    private fun dataSet(): MutableList<TodoListData> {
+        data = mutableListOf(
+            TodoListData(1,"test1",false),
+            TodoListData(2,"test2",false),
+            TodoListData(3,"test3",false),
+            TodoListData(4,"test4",false),
+            TodoListData(5,"test5",false),
+            TodoListData(6,"test6",false),
+            TodoListData(7,"test7",false),
+            TodoListData(8,"test8",false)
+        )
+        return data
+    }
+
+    private fun initSwipeRefrech() {
+        homeBinding.refreshSwipeLayout.setOnRefreshListener {
+            //data.clear()
+            todoAdapter!!.listData = data//dataSet()
+            homeBinding.recyclerView.startLayoutAnimation()
+            homeBinding.refreshSwipeLayout.isRefreshing = false
+            todoAdapter!!.notifyDataSetChanged()
+        }
+    }
+
     private fun initRecyclerView() {
-        data.add(TodoListData(1,"test"))
-        data.add(TodoListData(2,"test"))
-        data.add(TodoListData(3,"test"))
-        data.add(TodoListData(4,"test"))
-        data.add(TodoListData(5,"test"))
-        data.add(TodoListData(6,"test"))
-        data.add(TodoListData(7,"test"))
-        data.add(TodoListData(8,"test"))
-        data.add(TodoListData(9,"test"))
-        data.add(TodoListData(10,"test"))
         todoAdapter = TodoAdapter()
         todoAdapter!!.listData = data
         homeBinding.recyclerView.adapter = todoAdapter
         homeBinding.recyclerView.layoutManager = LinearLayoutManager(activity)
-
     }
 
 
