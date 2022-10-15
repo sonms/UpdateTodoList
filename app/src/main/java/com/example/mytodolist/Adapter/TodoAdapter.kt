@@ -88,12 +88,13 @@ class TodoAdapter : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
         return listData.size
     }
 
-    //데이터 Handle 함수
+    /*----------데이터 Handle 함수---------*/
+    //삭제
     fun removeData(position: Int) {
         listData.removeAt(position)
         notifyItemRemoved(position)
     }
-
+    //Drag하여 데이터의 이동(스왑 교환)
     fun swapData(beforePos : Int, afterPos : Int) {
         Collections.swap(listData, beforePos, afterPos)
         notifyItemMoved(beforePos,afterPos)

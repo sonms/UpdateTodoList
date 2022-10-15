@@ -1,5 +1,6 @@
 package com.example.mytodolist.navigation
 
+import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
@@ -16,7 +17,9 @@ import com.example.mytodolist.EditActivity
 import com.example.mytodolist.databinding.FragmentHomeBinding
 import com.example.mytodolist.model.TodoListData
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.recyclerview.widget.ItemTouchHelper
 import com.example.mytodolist.R
+import com.example.mytodolist.SwipeHelperCallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -51,6 +54,7 @@ class HomeFragment : Fragment() {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -94,7 +98,9 @@ class HomeFragment : Fragment() {
                     data[checkBoxPosition].isChecked = todoListData.isChecked
 
                     todoListData.isChecked = !todoListData.isChecked
+
                 }
+                todoAdapter!!.notifyDataSetChanged()
             }
         })
 
@@ -111,6 +117,19 @@ class HomeFragment : Fragment() {
                 }
             }
         })
+
+        //리사이클러뷰에 스와이프 드래그달기
+        val swipeHelperCallback = SwipeHelperCallback(todoAdapter!!).apply {
+            //스와이프 후 고정위치 지정
+            setClamp(resources.displayMetrics.widthPixels.toFloat() / 4)
+        }
+        ItemTouchHelper(swipeHelperCallback).attachToRecyclerView(homeBinding.recyclerView)
+
+        //다른 곳 터치 시 선택 뷰 닫기
+        homeBinding.recyclerView.setOnTouchListener { _,_ ->
+            swipeHelperCallback.removePreviousClamp(homeBinding.recyclerView)
+            false
+        }
 
 
         return homeBinding.root
@@ -173,6 +192,11 @@ class HomeFragment : Fragment() {
         homeBinding.recyclerView.layoutManager = LinearLayoutManager(activity)
     }
 
+    private fun loadAnim() {
+        CoroutineScope(Dispatchers.IO).launch {
+
+        }
+    }
 
 
 
