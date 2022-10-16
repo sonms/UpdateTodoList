@@ -18,8 +18,10 @@ class EditActivity : AppCompatActivity() {
         editBinding = ActivityEditBinding.inflate(layoutInflater)
         setContentView(editBinding.root)
 
+        //intent로 받은 키값 저장
         val type = intent.getStringExtra("type")
 
+        //type의 벨류값이 ADD일때
         if (type.equals("ADD")) {
             editBinding.textBtn.text = "추가하기"
         } else {
@@ -37,9 +39,12 @@ class EditActivity : AppCompatActivity() {
                         var todo = TodoListData(id, contentPost, false)
                         val intent = Intent().apply {
                             putExtra("todo", todo)
+                            //flag를 0으로 세팅
                             putExtra("flag",0)
                         }
+                        //추가할때마다 id값 증가
                         id += 1
+
                         setResult(RESULT_OK, intent)
                         finish()
                     }

@@ -7,8 +7,8 @@
         android:enabled="true"
         />
     <item
-        android:id="@+id/contemplating"
-        android:icon="@android:drawable/ic_menu_help"
+        android:id="@+id/calendar"
+        android:icon="@android:drawable/ic_menu_month"
         android:title="contemplating"
         android:enabled="true"
         />

@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.example.mytodolist.databinding.ActivityMainBinding
 import com.example.mytodolist.navigation.AccountFragment
-import com.example.mytodolist.navigation.BlankFragment
+import com.example.mytodolist.navigation.CalendarFragment
 import com.example.mytodolist.navigation.HomeFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
     private var blankFragment: BlankFragment? = null
     private var accountFragment: AccountFragment? = null*/
     private val TAG_HOME = "home_fragment"
-    private val TAG_BLANK = "blank_fragment"
+    private val TAG_CALENDAR = "calendar_fragment"
     private val TAG_ACCOUNT = "account_fragment"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         mBinding.bottomNavigationView.setOnItemSelectedListener { item->
             when(item.itemId){
                 R.id.home -> setFragment(TAG_HOME, HomeFragment())
-                R.id.contemplating -> setFragment(TAG_BLANK, BlankFragment())
+                R.id.calendar -> setFragment(TAG_CALENDAR, CalendarFragment())
                 R.id.account -> setFragment(TAG_ACCOUNT, AccountFragment())
             }
             true
@@ -116,14 +116,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         val home = manager.findFragmentByTag(TAG_HOME)
-        val blank = manager.findFragmentByTag(TAG_BLANK)
+        val calendar = manager.findFragmentByTag(TAG_CALENDAR)
         val account = manager.findFragmentByTag(TAG_ACCOUNT)
 
         if (home != null) {
             bt.hide(home)
         }
-        if (blank != null) {
-            bt.hide(blank)
+        if (calendar != null) {
+            bt.hide(calendar)
         }
         if (account != null) {
             bt.hide(account)
@@ -134,9 +134,9 @@ class MainActivity : AppCompatActivity() {
                 bt.show(home)
             }
         }
-        else if (tag == TAG_BLANK) {
-            if (blank != null) {
-                bt.show(blank)
+        else if (tag == TAG_CALENDAR) {
+            if (calendar != null) {
+                bt.show(calendar)
             }
         }
         else if (tag == TAG_ACCOUNT) {

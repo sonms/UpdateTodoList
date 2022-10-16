@@ -1,6 +1,8 @@
 package com.example.mytodolist.Adapter
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.Paint
 import android.util.SparseBooleanArray
 import android.view.LayoutInflater
@@ -15,6 +17,7 @@ import java.util.*
 
 class TodoAdapter : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
     private lateinit var todoItemBinding: TodoItemBinding
+    private var context: Context? = null
     var listData = mutableListOf<TodoListData>()
     var temp = mutableListOf<TodoListData>()
     private val checkBoxStatus = SparseBooleanArray()
@@ -54,15 +57,31 @@ class TodoAdapter : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
             }
 
             todoItemBinding.removeIv.setOnClickListener {
-                removeData(this.layoutPosition)
+                val builder : AlertDialog.Builder = AlertDialog.Builder(context)
+                val ad : AlertDialog = builder.create()
+                val deleteData = listData[this.layoutPosition].content
+                builder.setTitle(deleteData)
+                builder.setMessage("정말로 삭제하시겠습니까?")
 
+                builder.setNegativeButton("예",
+                    DialogInterface.OnClickListener { dialog, which ->
+                        ad.dismiss()
+                        removeData(this.layoutPosition)
+                    })
+
+                builder.setPositiveButton("아니오",
+                    DialogInterface.OnClickListener { dialog, which ->
+                        ad.dismiss()
+                    })
+
+                builder.show()
             }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TodoViewHolder {
         var inflater : LayoutInflater = parent.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-
+        context = parent.context
         todoItemBinding = TodoItemBinding.inflate(inflater, parent, false)
 
         return TodoViewHolder(todoItemBinding)
