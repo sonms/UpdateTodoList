@@ -73,8 +73,6 @@ class HomeFragment : Fragment() {
 
             todoAdapter!!.listData = dataSet()
 
-            todoAdapter!!.notifyDataSetChanged()
-
             homeBinding.recyclerView.startLayoutAnimation()
         }
 
@@ -181,14 +179,16 @@ class HomeFragment : Fragment() {
         return data
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun initSwipeRefrech() {
         homeBinding.refreshSwipeLayout.setOnRefreshListener {
             //data.clear()
             todoAdapter!!.listData = data//dataSet()
             homeBinding.recyclerView.startLayoutAnimation()
             homeBinding.refreshSwipeLayout.isRefreshing = false
-            todoAdapter!!.notifyDataSetChanged()
+
         }
+        todoAdapter!!.notifyDataSetChanged()
     }
 
     private fun initRecyclerView() {

@@ -170,7 +170,10 @@ class SwipeHelperCallback(private val mAdapter : TodoAdapter) : ItemTouchHelper.
 
     //다른 view를 스와이프할 때 그 전꺼는 닫혀있어야하니 터치나, 스와이프 중이였을 시 고정해제
     fun removePreviousFix(recyclerView: RecyclerView) {
-        if (currentPosition == previousPosition) return
+
+        if (currentPosition == previousPosition) {
+            return
+        }
 
         previousPosition?.let {
             val viewHolder = recyclerView.findViewHolderForAdapterPosition(it) ?: return
