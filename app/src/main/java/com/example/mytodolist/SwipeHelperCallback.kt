@@ -178,7 +178,7 @@ class SwipeHelperCallback(private val mAdapter : TodoAdapter) : ItemTouchHelper.
         previousPosition?.let {
             val viewHolder = recyclerView.findViewHolderForAdapterPosition(it) ?: return
 
-            (viewHolder as TodoAdapter.TodoViewHolder).todoItemBinding.swipeBasicLayout.animate().x(0f).setDuration(100L).start()
+            getView(viewHolder).animate().x(0f).setDuration(100L).start()
 
             //해제
             setTag(viewHolder,false)
