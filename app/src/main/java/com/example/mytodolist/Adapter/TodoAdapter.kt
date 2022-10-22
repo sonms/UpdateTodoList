@@ -17,9 +17,9 @@ import java.util.*
 
 class TodoAdapter : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
     private lateinit var todoItemBinding: TodoItemBinding
-    private var context: Context? = null
     var listData = mutableListOf<TodoListData>()
     var temp = mutableListOf<TodoListData>()
+    private lateinit var context : Context
     private val checkBoxStatus = SparseBooleanArray()
 
     inner class TodoViewHolder(var todoItemBinding: TodoItemBinding) : RecyclerView.ViewHolder(todoItemBinding.root) {
@@ -53,7 +53,7 @@ class TodoAdapter : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
             }
 
             todoItemBinding.root.setOnClickListener {
-                itemClickListner.onClick(it,layoutPosition,listData[layoutPosition].id)
+                itemClickListener.onClick(it,layoutPosition,listData[layoutPosition].id)
             }
 
             todoItemBinding.removeIv.setOnClickListener {
@@ -73,7 +73,6 @@ class TodoAdapter : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
                     DialogInterface.OnClickListener { dialog, which ->
                         ad.dismiss()
                     })
-
                 builder.show()
             }
         }
@@ -107,13 +106,12 @@ class TodoAdapter : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
         return listData.size
     }
 
-    /*----------데이터 Handle 함수---------*/
-    //삭제
+    //데이터 Handle 함수
     fun removeData(position: Int) {
         listData.removeAt(position)
         notifyItemRemoved(position)
     }
-    //Drag하여 데이터의 이동(스왑 교환)
+
     fun swapData(beforePos : Int, afterPos : Int) {
         Collections.swap(listData, beforePos, afterPos)
         notifyItemMoved(beforePos,afterPos)
@@ -133,11 +131,11 @@ class TodoAdapter : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
         fun onClick(view: View, position: Int, itemId: Int)
     }
 
-    private lateinit var itemClickListner: ItemClickListener
+    private lateinit var itemClickListener: ItemClickListener
     private lateinit var itemCheckBoxClickListener: ItemCheckBoxClickListener
 
     fun setItemClickListener(itemClickListener: ItemClickListener) {
-        this.itemClickListner = itemClickListener
+        this.itemClickListener = itemClickListener
     }
 
     fun setItemCheckBoxClickListener(itemCheckBoxClickListener: ItemCheckBoxClickListener) {

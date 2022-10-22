@@ -1,6 +1,5 @@
 package com.example.mytodolist.navigation
 
-import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
@@ -54,7 +53,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -73,10 +71,12 @@ class HomeFragment : Fragment() {
 
             todoAdapter!!.listData = dataSet()
 
+            todoAdapter!!.notifyDataSetChanged()
+
             homeBinding.recyclerView.startLayoutAnimation()
         }
 
-
+        /*위로 새로고침하는 방식*/
 
         //type으로 추가인지 수정인지 받아오기
         homeBinding.fabAdd.setOnClickListener {
@@ -88,7 +88,6 @@ class HomeFragment : Fragment() {
             todoAdapter!!.notifyDataSetChanged()
         }
 
-        //체크 박스 클릭 시 adapter에 있는 paint값이 적용됨
         todoAdapter!!.setItemCheckBoxClickListener(object : TodoAdapter.ItemCheckBoxClickListener{
             override fun onClick(view: View, position: Int, itemId: Int) {
                 CoroutineScope(Dispatchers.IO).launch {
@@ -97,14 +96,11 @@ class HomeFragment : Fragment() {
                     data[checkBoxPosition].isChecked = todoListData.isChecked
 
                     todoListData.isChecked = !todoListData.isChecked
-
                 }
                 todoAdapter!!.notifyDataSetChanged()
             }
         })
 
-
-        //recyclerview의 아이템 클릭 시
         todoAdapter!!.setItemClickListener(object :TodoAdapter.ItemClickListener{
             override fun onClick(view: View, position: Int, itemId: Int) {
                 CoroutineScope(Dispatchers.IO).launch {
@@ -119,7 +115,6 @@ class HomeFragment : Fragment() {
             }
         })
 
-        //리사이클러뷰에 스와이프 드래그달기
         val swipeHelperCallback = SwipeHelperCallback(todoAdapter!!).apply {
             //스와이프 후 고정위치 지정
             setFix(resources.displayMetrics.widthPixels.toFloat() / 4)
@@ -142,18 +137,15 @@ class HomeFragment : Fragment() {
             //타입 변경을 해주지 않으면 Serializable객체로 만들어지니 as로 캐스팅해주자
             val todo = it.data?.getSerializableExtra("todo") as TodoListData
 
-            //flag가 -1에서
             when(it.data?.getIntExtra("flag", -1)) {
                 0 -> {
                     CoroutineScope(Dispatchers.IO).launch {
-                        //flag가 0이면 ADD이니 데이터의 값추가
                         data.add(todo)
                     }
                     Toast.makeText(activity, "추가되었습니다.", Toast.LENGTH_SHORT).show()
                 }
                 1 -> {
                     CoroutineScope(Dispatchers.IO).launch {
-                        //flag가 1이면 EDIT이니 데이터의 값을 todo의 객체로 받은 값으로 데이터 수정
                         data[dataPosition] = todo
                     }
                     Toast.makeText(activity, "수정되었습니다.", Toast.LENGTH_SHORT).show()
@@ -179,10 +171,8 @@ class HomeFragment : Fragment() {
         return data
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     private fun initSwipeRefrech() {
         homeBinding.refreshSwipeLayout.setOnRefreshListener {
-            //data.clear()
             todoAdapter!!.listData = data//dataSet()
             homeBinding.recyclerView.startLayoutAnimation()
             homeBinding.refreshSwipeLayout.isRefreshing = false
@@ -197,6 +187,7 @@ class HomeFragment : Fragment() {
         homeBinding.recyclerView.adapter = todoAdapter
         homeBinding.recyclerView.layoutManager = LinearLayoutManager(activity)
     }
+
 
 
 

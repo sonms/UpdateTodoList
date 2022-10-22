@@ -1,11 +1,13 @@
 package com.example.mytodolist.navigation
 
+import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.mytodolist.R
+import androidx.annotation.RequiresApi
+import androidx.fragment.app.Fragment
+import com.example.mytodolist.databinding.FragmentCalendarBinding
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -17,6 +19,11 @@ class CalendarFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    private lateinit var calendarBinding: FragmentCalendarBinding
+    /*private lateinit var selectedDate : LocalDate
+    private lateinit var calendarAdapter : CalendarAdapter
+    private var monthDate : ArrayList<String> = ArrayList()*/
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -25,13 +32,64 @@ class CalendarFragment : Fragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_calendar, container, false)
+        calendarBinding = FragmentCalendarBinding.inflate(inflater, container, false)
+        return calendarBinding.root
     }
+    /*커스텀 캘린더뷰 실패작..
+    private fun setMonthView() {
+        //텍스트뷰 셋팅
+        calendarBinding.yearMonthText.text = dateOfYearMonth(selectedDate)
+
+        monthDate = dateSetting(selectedDate)
+
+        calendarAdapter = CalendarAdapter(monthDate)
+
+        calendarBinding.calendarRecyclerview.adapter = calendarAdapter
+        //grid 형식으로 7개 설정(한 주)
+        calendarBinding.calendarRecyclerview.layoutManager = GridLayoutManager(activity, 7)
+
+
+    }
+
+    private fun dateSetting(date : LocalDate) : ArrayList<String> {
+        val dateSet : ArrayList<String> = ArrayList()
+        val y_month : YearMonth = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            YearMonth.from(date)
+        } else {
+            TODO("VERSION.SDK_INT < O")
+        }
+        val lastDate = y_month.lengthOfMonth() //월의 마지막날짜
+        val firstDate = selectedDate.withDayOfMonth(1) //월의 첫날짜
+        val fotw : Int = firstDate.dayOfWeek.value//first_day_of_the_week
+
+        for (i in 1..41) {
+            //만약 한 주의 첫 요일이 i보다 작거나 같음 또는 i가 마지막요일 + 첫요일보다 크다면
+            if (i <= fotw || i > lastDate + fotw) {
+                dateSet.add("")
+            } else {
+                dateSet.add((i-fotw).toString())
+            }
+        }
+        return monthDate
+    }
+
+    //날짜 타입 설정
+    private fun dateOfYearMonth(date: LocalDate): String{
+
+        var formatter = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            DateTimeFormatter.ofPattern("yyyy MM월")
+        } else {
+            TODO("VERSION.SDK_INT < O")
+        }
+
+        // 받아온 날짜를 해당 포맷으로 변경
+        return date.format(formatter)
+    }*/
 
     companion object {
         /**

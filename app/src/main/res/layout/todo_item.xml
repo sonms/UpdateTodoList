@@ -5,13 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <!--먼저 작성한 뷰 마다 순서가 정해짐
-    1-2-3순으로 뷰를 작성했으면 3-2-1순으로 뷰가 정렬-->
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         >
-        <!--swipe시, 즉 걷어냈을 때 뒷 줄-->
+        <!--swipe시, 즉 걷어냈을 때 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -45,19 +44,18 @@
 
         </LinearLayout>
 
-        <!--기본(스와이프할꺼)맨 앞-->
+        <!--기본-->
         <LinearLayout
             android:id="@+id/swipe_basic_layout"
-            android:layout_width="match_parent"
+            android:layout_width="411dp"
             android:layout_height="180dp"
-            android:clickable="true"
+
             android:background="@drawable/rounditem_background"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:focusable="true">
+            app:layout_constraintTop_toTopOf="parent">
 
             <CheckBox
                 android:id="@+id/check_box"
