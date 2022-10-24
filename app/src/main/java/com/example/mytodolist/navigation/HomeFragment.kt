@@ -37,7 +37,6 @@ class HomeFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    var i = 4
     private lateinit var homeBinding: FragmentHomeBinding
     private var todoAdapter : TodoAdapter? = null
     private var dataPosition = 0 //수정시 데이터를 가져오기위한 인덱스
@@ -126,6 +125,7 @@ class HomeFragment : Fragment() {
             swipeHelperCallback.removePreviousFix(homeBinding.recyclerView)
             false
         }
+
 
 
         return homeBinding.root

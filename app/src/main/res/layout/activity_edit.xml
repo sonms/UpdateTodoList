@@ -27,9 +27,11 @@
         <EditText
             android:id="@+id/edit_text"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
             android:layout_margin="100dp"
             android:inputType="textMultiLine"
+            android:maxHeight="100dp"
+            android:isScrollContainer="true"
             android:scrollHorizontally="false"/>
 
         <LinearLayout

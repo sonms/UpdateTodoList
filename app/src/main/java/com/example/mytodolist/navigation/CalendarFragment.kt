@@ -1,13 +1,26 @@
 package com.example.mytodolist.navigation
 
+import android.content.Context
+import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
+import android.text.style.ForegroundColorSpan
+import android.text.style.RelativeSizeSpan
+import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import com.example.mytodolist.MainActivity
+import com.example.mytodolist.R
 import com.example.mytodolist.databinding.FragmentCalendarBinding
+import com.prolificinteractive.materialcalendarview.CalendarDay
+import com.prolificinteractive.materialcalendarview.CalendarMode
+import com.prolificinteractive.materialcalendarview.DayViewDecorator
+import com.prolificinteractive.materialcalendarview.DayViewFacade
+import java.util.Calendar
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -15,9 +28,27 @@ private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
 class CalendarFragment : Fragment() {
-    // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+
+    private lateinit var mainActivity: MainActivity
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        mainActivity = context as MainActivity
+    }
+
+    //시작 달의 인스턴스(현재달)
+    var startMonthCalendar = Calendar.getInstance()
+    //마지막 달의 인스턴스
+    var endMonthCalendar = Calendar.getInstance()
+
+    //현재 년도
+    val currentYear = startMonthCalendar.get(Calendar.YEAR)
+    //현재 월
+    val currentMonth = startMonthCalendar.get(Calendar.MONTH)
+    //현재 날짜
+    val currentDate = startMonthCalendar.get(Calendar.DATE)
 
     private lateinit var calendarBinding: FragmentCalendarBinding
     /*private lateinit var selectedDate : LocalDate
@@ -38,58 +69,117 @@ class CalendarFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         calendarBinding = FragmentCalendarBinding.inflate(inflater, container, false)
+
+        //마지막 달은 현재 달의 3을 더한 것 만큼 ex 1월->4월까지만 보여줌
+        endMonthCalendar.set(Calendar.MONTH, currentMonth+3)
+
+        //세팅 현재 10월 -> 내년 1월까지만 보여줌
+       /*calendarBinding.calendarview.state().edit()
+            .setFirstDayOfWeek(Calendar.SUNDAY)
+               //아래 코드를 그냥 맨끝 파라미터를 currentDate로 설정하면 그날로부터 전 날들은 전부 사라지기
+               //때문에 그냥 1일로 설정
+            .setMinimumDate(CalendarDay.from(currentYear, currentMonth, 1))
+            .setMaximumDate(CalendarDay.from(currentYear, currentMonth+3, endMonthCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)))
+            .setCalendarDisplayMode(CalendarMode.MONTHS)
+            .commit()*/
+
+        val startDate = CalendarDay.from(currentYear, currentMonth, currentDate)
+        val endDate = CalendarDay.from(endMonthCalendar.get(Calendar.YEAR), endMonthCalendar.get(Calendar.MONTH), endMonthCalendar.get(Calendar.DATE))
+
+        val sundayDeco = SundayDecorator()
+        val saturdayDeco = SaturdayDecorator()
+        val weekDayDeco = context?.let { WeekDayDecorator(it) }
+        val monthDeco = MonthDecorator(startDate, endDate)
+        val CurrentMonthDeco = CurrentMonthDecorator(startDate, endDate)
+
+        calendarBinding.calendarview.addDecorators(sundayDeco, saturdayDeco, monthDeco, weekDayDeco, CurrentMonthDeco )
+
         return calendarBinding.root
     }
-    /*커스텀 캘린더뷰 실패작..
-    private fun setMonthView() {
-        //텍스트뷰 셋팅
-        calendarBinding.yearMonthText.text = dateOfYearMonth(selectedDate)
 
-        monthDate = dateSetting(selectedDate)
+    inner class WeekDayDecorator(context: Context) : DayViewDecorator {
 
-        calendarAdapter = CalendarAdapter(monthDate)
+        private var date = CalendarDay.today()
+        val drawble = context?.resources?.getDrawable(R.drawable.date_select_deco, null)
 
-        calendarBinding.calendarRecyclerview.adapter = calendarAdapter
-        //grid 형식으로 7개 설정(한 주)
-        calendarBinding.calendarRecyclerview.layoutManager = GridLayoutManager(activity, 7)
-
-
-    }
-
-    private fun dateSetting(date : LocalDate) : ArrayList<String> {
-        val dateSet : ArrayList<String> = ArrayList()
-        val y_month : YearMonth = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            YearMonth.from(date)
-        } else {
-            TODO("VERSION.SDK_INT < O")
+        override fun shouldDecorate(day: CalendarDay?): Boolean {
+            return day?.equals(date)!!
         }
-        val lastDate = y_month.lengthOfMonth() //월의 마지막날짜
-        val firstDate = selectedDate.withDayOfMonth(1) //월의 첫날짜
-        val fotw : Int = firstDate.dayOfWeek.value//first_day_of_the_week
 
-        for (i in 1..41) {
-            //만약 한 주의 첫 요일이 i보다 작거나 같음 또는 i가 마지막요일 + 첫요일보다 크다면
-            if (i <= fotw || i > lastDate + fotw) {
-                dateSet.add("")
-            } else {
-                dateSet.add((i-fotw).toString())
+        override fun decorate(view: DayViewFacade?) {
+            if (drawble != null) {
+                view?.setBackgroundDrawable(drawble)
             }
         }
-        return monthDate
+
     }
 
-    //날짜 타입 설정
-    private fun dateOfYearMonth(date: LocalDate): String{
-
-        var formatter = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            DateTimeFormatter.ofPattern("yyyy MM월")
-        } else {
-            TODO("VERSION.SDK_INT < O")
+    inner class SundayDecorator() : DayViewDecorator {
+        private val calendar = Calendar.getInstance()
+        override fun shouldDecorate(day: CalendarDay?): Boolean {
+            //주어진 캘린더 인스턴스에 오늘의 정보를 복사
+            day?.copyTo(calendar)
+            //일주일을 받아옴
+            val weekDay = calendar.get(Calendar.DAY_OF_WEEK)
+            //그중 일요일을 리턴
+            return weekDay == Calendar.SUNDAY
         }
 
-        // 받아온 날짜를 해당 포맷으로 변경
-        return date.format(formatter)
-    }*/
+        override fun decorate(view: DayViewFacade?) {
+            //하루(일요일)의 전체 텍스트에 범위의 색 추가
+            view?.addSpan(object :ForegroundColorSpan(Color.RED){})
+        }
+
+    }
+
+    inner class SaturdayDecorator() : DayViewDecorator {
+        private val calendar = Calendar.getInstance()
+        override fun shouldDecorate(day: CalendarDay?): Boolean {
+            //주어진 캘린더 인스턴스에 오늘의 정보를 복사
+            day?.copyTo(calendar)
+            //토요일을 받아옴
+            val weekDay = calendar.get(Calendar.DAY_OF_WEEK)
+            //그중 토요일을 리턴
+            return weekDay == Calendar.SATURDAY
+        }
+
+        override fun decorate(view: DayViewFacade?) {
+            view?.addSpan(object :ForegroundColorSpan(Color.BLUE){})
+        }
+
+    }
+
+    //현재 한 달의 1~30(31)을 제외한 이전 달 또는 다음 달의 날 체크
+    inner class MonthDecorator(s : CalendarDay, e : CalendarDay) :DayViewDecorator {
+        private val startDate = s
+        private val endDate = e
+        //date : 구체적 특정 날짜, day : 하루
+        override fun shouldDecorate(day: CalendarDay?): Boolean {
+            return (day?.month == startDate.month && day.day > startDate.day)
+                    || (day?.month == endDate.month && day.day < endDate.day)
+        }
+
+        override fun decorate(view: DayViewFacade?) {
+            view?.addSpan(object : ForegroundColorSpan(Color.GRAY){})
+            //선택 불가 true
+            view?.setDaysDisabled(true)
+        }
+    }
+
+    inner class CurrentMonthDecorator(s : CalendarDay, e : CalendarDay) : DayViewDecorator{
+        val startDate = s
+        val endDate = e
+        override fun shouldDecorate(day: CalendarDay?): Boolean {
+            return (day?.month == startDate.month && day.day <= startDate.day)
+                    || (day?.month == endDate.month && day.day >= endDate.day)
+                    || (endDate.month < day?.month!! && day.month < startDate.month)
+        }
+
+        override fun decorate(view: DayViewFacade?) {
+            view?.addSpan(object : StyleSpan(Typeface.BOLD){})
+            view?.addSpan(object :RelativeSizeSpan(1.4f){})
+        }
+    }
 
     companion object {
         /**
