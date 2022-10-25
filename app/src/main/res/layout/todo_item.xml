@@ -56,24 +56,30 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:background="?attr/selectableItemBackground"
+                android:padding="5dp">
+                <CheckBox
+                    android:id="@+id/check_box"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:onClick="onCheckboxClicked" />
 
-            <CheckBox
-                android:id="@+id/check_box"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:onClick="onCheckboxClicked" />
-
-            <TextView
-                android:id="@+id/todo_text"
-                android:layout_width="wrap_content"
-                android:layout_height="119dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="10dp"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="Todo" />
+                <TextView
+                    android:id="@+id/todo_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="119dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Todo" />
+            </LinearLayout>
         </LinearLayout>
     </FrameLayout>
 

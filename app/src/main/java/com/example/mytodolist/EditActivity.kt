@@ -22,7 +22,7 @@ class EditActivity : AppCompatActivity() {
 
         if (type.equals("ADD")) {
             editBinding.textBtn.text = "추가하기"
-        } else {
+        } else if (type.equals("EDIT")){
             eTodo = intent.getSerializableExtra("item") as TodoListData?
             editBinding.editText.setText(eTodo!!.content)
             editBinding.textBtn.text = "수정하기"
@@ -43,7 +43,7 @@ class EditActivity : AppCompatActivity() {
                     setResult(RESULT_OK, intent)
                     finish()
                 }
-            } else {
+            } else if(type.equals("EDIT")){
                 if (contentPost.isNotEmpty()) {
                     val todoData = TodoListData(eTodo!!.id, contentPost, eTodo!!.isChecked)
                     val intent = Intent().apply {
