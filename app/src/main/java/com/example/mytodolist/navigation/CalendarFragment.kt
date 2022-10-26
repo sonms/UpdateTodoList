@@ -17,6 +17,7 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import com.example.mytodolist.EditActivity
 import com.example.mytodolist.MainActivity
+import com.example.mytodolist.ScheduleEditActivity
 import com.example.mytodolist.databinding.FragmentCalendarBinding
 import com.example.mytodolist.model.ScheduleData
 import com.example.mytodolist.model.TodoListData
@@ -118,8 +119,9 @@ class CalendarFragment : Fragment() {
             val day = date.day
             val targetDay = "$year.$month.$day"
 
-            val intent = Intent(activity, EditActivity::class.java).apply {
+            val intent = Intent(activity, ScheduleEditActivity::class.java).apply {
                 putExtra("type","schedule")
+                putExtra("time", targetDay)
             }
             requestActivity.launch(intent)
         })

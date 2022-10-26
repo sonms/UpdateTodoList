@@ -184,6 +184,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/schedule_edit_text" />
 
+    <!--
     <Button
         android:id="@+id/button"
         android:layout_width="100dp"
@@ -192,5 +193,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/schedule_edit_text" />
+        app:layout_constraintTop_toBottomOf="@+id/schedule_edit_text" />-->
 </androidx.constraintlayout.widget.ConstraintLayout>

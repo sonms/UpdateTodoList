@@ -7,15 +7,17 @@
 
 
     <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
-        <!--swipe시, 즉 걷어냈을 때 -->
+        android:id="@+id/frameLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="10dp"
             android:background="@color/white"
             android:orientation="horizontal"
             android:weightSum="4">
@@ -47,21 +49,23 @@
         <!--기본-->
         <LinearLayout
             android:id="@+id/swipe_basic_layout"
-            android:layout_width="411dp"
-            android:layout_height="180dp"
-
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:background="@drawable/rounditem_background"
             android:gravity="center_vertical"
             android:orientation="horizontal"
+            android:focusable="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal"
                 android:background="?attr/selectableItemBackground"
+                android:orientation="horizontal"
                 android:padding="5dp">
+
                 <CheckBox
                     android:id="@+id/check_box"
                     android:layout_width="30dp"
@@ -82,10 +86,6 @@
             </LinearLayout>
         </LinearLayout>
     </FrameLayout>
-
-
-
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
