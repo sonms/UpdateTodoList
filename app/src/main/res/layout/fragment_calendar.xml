@@ -142,47 +142,33 @@
         android:id="@+id/calendarview"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:mcv_selectionColor="@color/whiteblue"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:mcv_selectionColor="@color/whiteblue" />
     <!--일정 추가 이벤트 xml-->
+
     <TextView
-        android:id="@+id/select_date"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginBottom="651dp"
+        android:id="@+id/textView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:gravity="center"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="일정"
+        android:textSize="23sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/calendarview" />
-
-
-    <EditText
-        android:id="@+id/schedule_edit_text"
-        android:layout_width="0dp"
-        android:layout_height="120dp"
-        android:layout_marginTop="376dp"
-        android:ems="10"
-        android:hint="일정을 입력해 주세요."
-        android:inputType="textMultiLine"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/select_date" />
 
     <TextView
         android:id="@+id/schedule"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="1dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/schedule_edit_text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/schedule_edit_text" />
+        android:visibility="visible"
+        android:textSize="25sp"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!--
     <Button

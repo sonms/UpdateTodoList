@@ -6,11 +6,14 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -24,6 +27,7 @@ import com.example.mytodolist.model.TodoListData
 import com.prolificinteractive.materialcalendarview.CalendarDay
 import com.prolificinteractive.materialcalendarview.DayViewDecorator
 import com.prolificinteractive.materialcalendarview.DayViewFacade
+import com.prolificinteractive.materialcalendarview.MaterialCalendarView
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener
 import com.prolificinteractive.materialcalendarview.spans.DotSpan
 import kotlinx.coroutines.CoroutineScope
@@ -32,6 +36,7 @@ import kotlinx.coroutines.launch
 import java.time.Month
 import java.time.Year
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -69,7 +74,10 @@ class CalendarFragment : Fragment() {
     private lateinit var calendarAdapter : CalendarAdapter
     private var monthDate : ArrayList<String> = ArrayList()*/
     private var scheduleData : MutableList<ScheduleData> = mutableListOf()
-
+    private var targetDay : String = ""
+    private var dot_y : Int = 0
+    private var dot_m : Int = 0
+    private var dot_d : Int = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -97,6 +105,32 @@ class CalendarFragment : Fragment() {
             .setMaximumDate(CalendarDay.from(currentYear, currentMonth+5, endMonthCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)))
             .setCalendarDisplayMode(CalendarMode.MONTHS)
             .commit()*/
+        calendarBinding.calendarview.setOnDateChangedListener(OnDateSelectedListener { widget, date, selected ->
+            //test용 변수 .. tartgetDay는 나중에 toast나 다른 기능에 사용예정
+            dot_y = date.year
+            dot_m = date.month + 1
+            dot_d = date.day
+            targetDay = "$dot_y.$dot_m.$dot_d"
+            /*var date = Calendar.getInstance()
+            date.set(dot_y, dot_m, dot_d)
+
+            // 달력에 표시할 날짜 day List에 넣기
+            var day = CalendarDay.from(date) // Calendar 자료형을 넣어주면 됨
+            calendarList.add(day)*/
+
+            //val eventDeco = EventDecorator(calendarList, mainActivity, Color.BLUE)
+            calendarBinding.calendarview.addDecorator(EventDecorator(Collections.singleton(date), Color.BLUE)) //선택시찍힘
+            //calendarBinding.calendarview.addDecorator(EventDecorator(calendarList, mainActivity, Color.BLUE))
+            //dotDecorator(calendarBinding.calendarview)
+            //선택초기화화
+            calendarBinding.calendarview.clearSelection()
+
+            val intent = Intent(activity, ScheduleEditActivity::class.java).apply {
+                putExtra("type","schedule")
+                putExtra("time", targetDay)
+            }
+            requestActivity.launch(intent)
+        })
 
         val startDate = CalendarDay.from(currentYear, currentMonth, currentDate)
         val endDate = CalendarDay.from(endMonthCalendar.get(Calendar.YEAR), endMonthCalendar.get(Calendar.MONTH), endMonthCalendar.get(Calendar.DATE))
@@ -106,25 +140,12 @@ class CalendarFragment : Fragment() {
         val toDayDeco = context?.let { ToDayDecorator(it) }
         //val monthDeco = MonthDecorator(startDate, endDate)
         //val CurrentMonthDeco = CurrentMonthDecorator(startDate, endDate)
-        calendarList.add(CalendarDay.today())
-        calendarList.add(CalendarDay.from(2022, 10, 25))
-        val eventDeco = EventDecorator(calendarList, mainActivity, Color.BLUE)
-        calendarBinding.calendarview.addDecorators(sundayDeco, saturdayDeco, /*monthDeco,*/ toDayDeco/*, CurrentMonthDeco*/ , eventDeco)
+        //calendarList.add(CalendarDay.today())
+        //calendarList.add(CalendarDay.from(2022, 10, 25))
+        val eventDeco = EventDecorator(calendarList, Color.BLUE)
+        calendarBinding.calendarview.addDecorators(sundayDeco, saturdayDeco, /*monthDeco,*/ toDayDeco/*, CurrentMonthDeco*/ /*, eventDeco*/)
 
-
-        calendarBinding.calendarview.setOnDateChangedListener(OnDateSelectedListener { widget, date, selected ->
-            //test용 변수 .. tartgetDay는 나중에 toast에 사용예정
-            val year = date.year
-            val month = date.month + 1
-            val day = date.day
-            val targetDay = "$year.$month.$day"
-
-            val intent = Intent(activity, ScheduleEditActivity::class.java).apply {
-                putExtra("type","schedule")
-                putExtra("time", targetDay)
-            }
-            requestActivity.launch(intent)
-        })
+        //dotDecorator(calendarBinding.calendarview)
 
         return calendarBinding.root
     }
@@ -154,11 +175,40 @@ class CalendarFragment : Fragment() {
                     CoroutineScope(Dispatchers.IO).launch {
                         scheduleData.add(schedule)
                     }
+                    calendarBinding.schedule.text = schedule.scheduleText + "---" + schedule.schedultTime
                     Toast.makeText(activity, "추가되었습니다.", Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
+
+    /*fun dotDecorator(calendarview : MaterialCalendarView?) {
+        var dates = kotlin.collections.ArrayList<CalendarDay>()
+        CoroutineScope(Dispatchers.IO).launch {
+            if (calendarList.size != 0) {
+                for (i in 0 until calendarList.size) {
+                    var dy = calendarList[i].year
+                    var dm = calendarList[i].month
+                    var dd = calendarList[i].day
+                    var date = Calendar.getInstance()
+                    date.set(dy, dm, dd)
+                    var day = CalendarDay.from(date)
+                    dates.add(day)
+                    println(dates)
+                }
+            }
+        }
+        Handler(Looper.getMainLooper()).postDelayed({
+            calendarview!!.removeDecorators()
+            calendarview!!.invalidateDecorators()
+            calendarview.addDecorators(SundayDecorator(), SaturdayDecorator(), ToDayDecorator(mainActivity))
+            if (dates.size > 0) {
+                calendarview!!.addDecorator(EventDecorator(dates, Color.BLUE))
+            }
+            println(dates.size)
+        }, 0)
+    }*/
+
     //오늘을 색다르게 데코
     inner class ToDayDecorator(context: Context) : DayViewDecorator {
 
@@ -212,8 +262,8 @@ class CalendarFragment : Fragment() {
 
     }
 
-    inner class EventDecorator(dates: Collection<CalendarDay?>?,
-                               context: Activity,
+    inner class EventDecorator(dates: Collection<CalendarDay>?,
+                                //context: Activity,
                                color : Int
                                /*textView: TextView?*/) : DayViewDecorator {
         private var dates : HashSet<CalendarDay>
@@ -235,7 +285,6 @@ class CalendarFragment : Fragment() {
             //view!!.setSelectionDrawable(drawable)
             view!!.addSpan(DotSpan(5F, color))
         }
-
     }
 
     //현재 한 달의 1~30(31)을 제외한 이전 달 또는 다음 달의 날 체크
