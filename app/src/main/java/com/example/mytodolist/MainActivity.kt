@@ -1,16 +1,24 @@
 package com.example.mytodolist
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.View
 import android.widget.LinearLayout
-import androidx.core.view.isGone
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSmoothScroller
+import androidx.recyclerview.widget.RecyclerView
+import com.example.mytodolist.Adapter.TodoAdapter
 import com.example.mytodolist.databinding.ActivityMainBinding
 import com.example.mytodolist.navigation.AccountFragment
 import com.example.mytodolist.navigation.CalendarFragment
 import com.example.mytodolist.navigation.HomeFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.android.synthetic.main.fragment_home.view.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -23,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private val TAG_HOME = "home_fragment"
     private val TAG_CALENDAR = "calendar_fragment"
     private val TAG_ACCOUNT = "account_fragment"
+    private var mAdapter : TodoAdapter = TodoAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +50,19 @@ class MainActivity : AppCompatActivity() {
 
         mBinding.bottomNavigationView.setOnItemSelectedListener { item->
             when(item.itemId){
-                R.id.home -> setFragment(TAG_HOME, HomeFragment())
+                R.id.home -> {
+                    setFragment(TAG_HOME, HomeFragment())
+                    var manager = findViewById<RecyclerView>(R.id.recyclerView).layoutManager as? LinearLayoutManager
+                    //smooth하게 올리는 방식 빠르게올리는 방식은 아래 scrollToLastItem
+                    val smoothScroller = object : LinearSmoothScroller(this) {
+                        override fun getVerticalSnapPreference(): Int {
+                            return LinearSmoothScroller.SNAP_TO_END
+                        }
+                    }
+                    val last = manager!!.findLastVisibleItemPosition()
+                    smoothScroller.targetPosition = last
+                    manager!!.startSmoothScroll(smoothScroller)
+                }
                 R.id.calendar -> setFragment(TAG_CALENDAR, CalendarFragment())
                 R.id.account -> setFragment(TAG_ACCOUNT, AccountFragment())
             }
@@ -145,6 +166,14 @@ class MainActivity : AppCompatActivity() {
             }
         }
         bt.commitAllowingStateLoss()
+    }
+    private fun scrollToLastItem(view: View) {
+        var manager = findViewById<RecyclerView>(R.id.recyclerView).layoutManager as? LinearLayoutManager
+        val last = manager!!.findLastVisibleItemPosition()
+        Handler(Looper.getMainLooper()).postDelayed(
+            Runnable { /*manager!!.scrollToPositionWithOffset(last,0)*/ },
+            200
+        )
     }
 
     fun changeFragment(fragment : Fragment) {

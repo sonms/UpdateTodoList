@@ -43,6 +43,8 @@ class HomeFragment : Fragment() {
     private var todoAdapter : TodoAdapter? = null
     private var dataPosition = 0 //수정시 데이터를 가져오기위한 인덱스
     private var checkBoxPosition = 0
+    private var manager : LinearLayoutManager = LinearLayoutManager(activity)
+    //로딩 즉 item의 끝이며 스크롤의 끝인지
     private var isLoading = false
     //모든 item
     private var data : MutableList<TodoListData?> = mutableListOf()
@@ -198,7 +200,9 @@ class HomeFragment : Fragment() {
         todoAdapter = TodoAdapter()
         todoAdapter!!.listData = data
         homeBinding.recyclerView.adapter = todoAdapter
-        homeBinding.recyclerView.layoutManager = LinearLayoutManager(activity)
+        manager.reverseLayout = true
+        manager.stackFromEnd = true
+        homeBinding.recyclerView.layoutManager = manager
     }
 
     private fun initScrollListener(){
@@ -212,8 +216,11 @@ class HomeFragment : Fragment() {
                 //데이터의 마지막이 아이템의 화면에 뿌려졌는지
                 if (!isLoading) {
                     if (!homeBinding.recyclerView.canScrollVertically(1)) {
-                        isLoading = true
-                        getMoreItem()
+                        //가져온 data의 크기가 5와 같을 경우 실행
+                        if (data.size == 5) {
+                            isLoading = true
+                            getMoreItem()
+                        }
                     }
                 }
             }
