@@ -6,6 +6,7 @@ import android.os.Looper
 import android.view.View
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isEmpty
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,7 +32,7 @@ class MainActivity : AppCompatActivity() {
     private val TAG_HOME = "home_fragment"
     private val TAG_CALENDAR = "calendar_fragment"
     private val TAG_ACCOUNT = "account_fragment"
-    private var mAdapter : TodoAdapter = TodoAdapter()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         mBinding.bottomNavigationView.setOnItemSelectedListener { item->
             when(item.itemId){
                 R.id.home -> {
-                    setFragment(TAG_HOME, HomeFragment())
+
                     var manager = findViewById<RecyclerView>(R.id.recyclerView).layoutManager as? LinearLayoutManager
                     //smooth하게 올리는 방식 빠르게올리는 방식은 아래 scrollToLastItem
                     val smoothScroller = object : LinearSmoothScroller(this) {
@@ -61,7 +62,12 @@ class MainActivity : AppCompatActivity() {
                     }
                     val last = manager!!.findLastVisibleItemPosition()
                     smoothScroller.targetPosition = last
-                    manager!!.startSmoothScroll(smoothScroller)
+                    if (last >= 0) {
+                        manager!!.startSmoothScroll(smoothScroller)
+                    } else {
+                        setFragment(TAG_HOME, HomeFragment())
+                    }
+
                 }
                 R.id.calendar -> setFragment(TAG_CALENDAR, CalendarFragment())
                 R.id.account -> setFragment(TAG_ACCOUNT, AccountFragment())

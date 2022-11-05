@@ -1,14 +1,17 @@
 package com.example.mytodolist.navigation
 
 import android.app.Activity.RESULT_OK
+import android.app.SearchManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.view.inputmethod.EditorInfo
 import android.widget.Button
+import android.widget.EditText
+import android.widget.SearchView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
@@ -17,13 +20,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mytodolist.Adapter.TodoAdapter
 import com.example.mytodolist.EditActivity
+import com.example.mytodolist.R
 import com.example.mytodolist.SwipeHelperCallback
 import com.example.mytodolist.databinding.FragmentHomeBinding
 import com.example.mytodolist.model.TodoListData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.*
+import kotlin.collections.ArrayList
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -50,6 +55,11 @@ class HomeFragment : Fragment() {
     private var data : MutableList<TodoListData?> = mutableListOf()
     //잠깐 data저장을 사용하기 위한 list
     private var tempData : MutableList<TodoListData?> = mutableListOf()
+    //검색용
+    private var searchData : MutableList<TodoListData?> = mutableListOf()
+    lateinit var filterString : ArrayList<String>
+    private var searchView: SearchView? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -64,6 +74,7 @@ class HomeFragment : Fragment() {
     ): View? {
         homeBinding = FragmentHomeBinding.inflate(inflater,container,false)
         tempData = data
+        searchData.addAll(data)
 
         /*model.getAll().observe(this, Observer{
             noticeAdapter.setList(it.content)
@@ -76,6 +87,8 @@ class HomeFragment : Fragment() {
         initRecyclerView()
         initSwipeRefrech()
         initScrollListener()
+        //툴바(search) 메뉴세팅
+        setHasOptionsMenu(true)
         //새로고침 클릭 시 애니메이션
         val reflashBtn : Button = homeBinding.reflashButton
         reflashBtn.setOnClickListener {
@@ -141,10 +154,79 @@ class HomeFragment : Fragment() {
             false
         }
 
-
-
         return homeBinding.root
     }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+
+        inflater.inflate(R.menu.search_menu_item, menu)
+        //val item = menu?.findItem(R.id.menu_action_search)
+
+
+        var searchManager = context?.getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        val searchItem : MenuItem = menu.findItem(R.id.menu_action_search)
+
+        if (searchItem != null) {
+            //val searchET = searchView!!.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
+            //searchET.hint = "Search.."
+            searchView = searchItem?.actionView as SearchView
+            searchView!!.queryHint = "Search.."
+            searchView!!.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                //검색버튼 입력시 호출, 근데 검색버튼이 없으므로 사용x
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    //todoAdapter!!.filter.filter(query)
+                    return false
+                }
+
+                //텍스트 입력/수정 시 호출
+                override fun onQueryTextChange(s: String?): Boolean {
+                    if (s != null) {
+                        if (s.isNotEmpty()) {
+                        todoAdapter!!.filter.filter(s)
+                        //todoAdapter!!.filter.filter(s)
+                        } else {
+
+                        }
+                    }
+                    //todoAdapter!!.filter.filter(s)
+                    //val filterString = s!!.toLowerCase()
+                    /*if (s!!.isNotEmpty()) {
+                        searchData.clear()
+                        val filterString = s.lowercase(Locale.getDefault())
+
+                        data.forEach {
+                            if (it!!.content.lowercase(Locale.getDefault()).contains(filterString)) {
+                                searchData.add(it)
+                                println(it)
+                                homeBinding.recyclerView.adapter!!.notifyDataSetChanged()
+                            }
+                        }
+                        /*for (searchText in data) {
+                            if (searchText!!.content.trim().contains(filterString)) {
+                                searchData.add(searchText)
+                                //todoAdapter!!.filterContent.addAll(searchData)
+                            }
+                        }*/
+                    }
+                    else {
+                        searchData.clear()
+                        searchData.addAll(data)
+                        //todoAdapter!!.filterContent.addAll(searchData)
+                        todoAdapter!!.notifyDataSetChanged()
+                    }*/
+                    return false
+                }
+            })
+        }
+
+
+        return super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return super.onOptionsItemSelected(item)
+    }
+
 
     private val requestActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -197,11 +279,12 @@ class HomeFragment : Fragment() {
     }
 
     private fun initRecyclerView() {
-        todoAdapter = TodoAdapter()
+        todoAdapter = TodoAdapter(data)
         todoAdapter!!.listData = data
         homeBinding.recyclerView.adapter = todoAdapter
         manager.reverseLayout = true
         manager.stackFromEnd = true
+        homeBinding.recyclerView.setHasFixedSize(true)
         homeBinding.recyclerView.layoutManager = manager
     }
 
@@ -295,6 +378,10 @@ class HomeFragment : Fragment() {
             isLoading = false
         }, 2000)
     }
+
+
+
+
 
 
 
