@@ -65,8 +65,9 @@ class MainActivity : AppCompatActivity() {
                     if (last >= 0) {
                         manager!!.startSmoothScroll(smoothScroller)
                     } else {
-                        setFragment(TAG_HOME, HomeFragment())
+
                     }
+                    setFragment(TAG_HOME, HomeFragment())
 
                 }
                 R.id.calendar -> setFragment(TAG_CALENDAR, CalendarFragment())
