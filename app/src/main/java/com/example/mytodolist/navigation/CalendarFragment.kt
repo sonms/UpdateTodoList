@@ -18,6 +18,9 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import androidx.viewpager2.widget.ViewPager2
+import com.example.mytodolist.Adapter.ScheduleAdapter
+import com.example.mytodolist.Adapter.TodoAdapter
 import com.example.mytodolist.EditActivity
 import com.example.mytodolist.MainActivity
 import com.example.mytodolist.ScheduleEditActivity
@@ -30,6 +33,10 @@ import com.prolificinteractive.materialcalendarview.DayViewFacade
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener
 import com.prolificinteractive.materialcalendarview.spans.DotSpan
+import kotlinx.android.synthetic.main.fragment_calendar.view.*
+import kotlinx.android.synthetic.main.fragment_home.view.*
+import kotlinx.android.synthetic.main.item_schedule.*
+import kotlinx.android.synthetic.main.item_schedule.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -56,6 +63,8 @@ class CalendarFragment : Fragment() {
         mainActivity = context as MainActivity
     }
 
+    private var scheduleAdapter : ScheduleAdapter? = null
+
     //시작 달의 인스턴스(현재달)
     var startMonthCalendar = Calendar.getInstance()
     //마지막 달의 인스턴스
@@ -73,11 +82,13 @@ class CalendarFragment : Fragment() {
     /*private lateinit var selectedDate : LocalDate
     private lateinit var calendarAdapter : CalendarAdapter
     private var monthDate : ArrayList<String> = ArrayList()*/
-    private var scheduleData : MutableList<ScheduleData> = mutableListOf()
+    private var addScheduleData : MutableList<ScheduleData?> = mutableListOf()
     private var targetDay : String = ""
     private var dot_y : Int = 0
     private var dot_m : Int = 0
     private var dot_d : Int = 0
+    private var date = CalendarDay.today()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -95,7 +106,13 @@ class CalendarFragment : Fragment() {
 
         //마지막 달은 현재 달의 3을 더한 것 만큼 ex 1월->6?5?월까지만 보여줌
         endMonthCalendar.set(Calendar.MONTH, currentMonth+5)
+        addScheduleData.add(ScheduleData(0, "test", "10시"))
+        addScheduleData.add(ScheduleData(1, "test1", "50시"))
+        addScheduleData.add(ScheduleData(2, "test2", "30시"))
+        addScheduleData.add(ScheduleData(3, "test3", "20시"))
 
+
+        initViewPager()
         //세팅 현재 10월 -> 3?월까지만 보여줌
        /*calendarBinding.calendarview.state().edit()
             .setFirstDayOfWeek(Calendar.SUNDAY)
@@ -124,7 +141,6 @@ class CalendarFragment : Fragment() {
             //dotDecorator(calendarBinding.calendarview)
             //선택초기화화
             calendarBinding.calendarview.clearSelection()
-
             val intent = Intent(activity, ScheduleEditActivity::class.java).apply {
                 putExtra("type","schedule")
                 putExtra("time", targetDay)
@@ -150,6 +166,14 @@ class CalendarFragment : Fragment() {
         return calendarBinding.root
     }
 
+    private fun initViewPager() {
+        scheduleAdapter = ScheduleAdapter()
+        scheduleAdapter!!.scheduleData = addScheduleData
+        calendarBinding.scheduleViewpager2.adapter = scheduleAdapter
+        //calendarBinding.scheduleViewpager2.orientation = ViewPager2.ORIENTATION_HORIZONTAL
+    }
+
+
     private val requestActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == Activity.RESULT_OK) {
             //getSerializableExtra = intent의 값을 보내고 받을때사용
@@ -173,9 +197,9 @@ class CalendarFragment : Fragment() {
                 //3 = calendarview에서의 Flag
                 3 -> {
                     CoroutineScope(Dispatchers.IO).launch {
-                        scheduleData.add(schedule)
+                        addScheduleData.add(schedule)
                     }
-                    calendarBinding.schedule.text = schedule.scheduleText + "---" + schedule.schedultTime
+                    calendarBinding.setDate.text = date.toString()
                     Toast.makeText(activity, "추가되었습니다.", Toast.LENGTH_SHORT).show()
                 }
             }

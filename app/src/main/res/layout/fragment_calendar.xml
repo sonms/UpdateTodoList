@@ -140,14 +140,15 @@
         app:layout_constraintTop_toTopOf="@+id/select_date" />-->
     <com.prolificinteractive.materialcalendarview.MaterialCalendarView
         android:id="@+id/calendarview"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="409dp"
+        android:layout_height="427dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:mcv_selectionColor="@color/whiteblue" />
-    <!--일정 추가 이벤트 xml-->
 
+    <!--일정 추가 이벤트 xml-->
+    <!--
     <TextView
         android:id="@+id/textView"
         android:layout_width="0dp"
@@ -168,8 +169,39 @@
         android:textSize="25sp"
         android:gravity="center"
         app:layout_constraintTop_toBottomOf="@+id/textView"
-        app:layout_constraintEnd_toEndOf="parent" />
-
+        app:layout_constraintEnd_toEndOf="parent" />-->
+    <TextView
+        android:id="@+id/set_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="10dp"
+        android:text="일정 - 11월 8일"
+        android:textStyle="bold"
+        android:background="@color/whiteblue"
+        android:textSize="30dp"
+        android:gravity="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/calendarview"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/set_date"
+        >
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/schedule_viewpager2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/set_date"
+            />
+    </LinearLayout>
     <!--
     <Button
         android:id="@+id/button"
