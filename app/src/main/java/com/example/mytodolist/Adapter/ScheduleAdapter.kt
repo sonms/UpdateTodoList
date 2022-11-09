@@ -39,7 +39,8 @@ class ScheduleAdapter : RecyclerView.Adapter<ScheduleAdapter.ScheduleViewHolder>
     override fun onBindViewHolder(holder: ScheduleViewHolder, position: Int) {
         holder.bind(scheduleData[position]!!, position)
     }
-
+    
+    //뷰페이저 수
     override fun getItemCount(): Int {
         return scheduleData.size
     }
