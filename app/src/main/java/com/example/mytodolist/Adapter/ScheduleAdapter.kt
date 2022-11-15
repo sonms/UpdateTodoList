@@ -21,12 +21,8 @@ class ScheduleAdapter : RecyclerView.Adapter<ScheduleAdapter.ScheduleViewHolder>
     inner class ScheduleViewHolder(private val binding : ViewitemScheduleBinding ) : RecyclerView.ViewHolder(binding.root) {
         private var position : Int? = null
         private val setDate : String = ""
-        private val test : TextView = binding.tvsc1
         fun bind(scheduleData: ScheduleData, position : Int) {
-            binding.tvsc1.text = scheduleData.scheduleText
-            binding.tvsc2.text = "test"
-            binding.tvsc3.text = "test"
-            binding.tvsc4.text = "set"
+            
         }
     }
 
