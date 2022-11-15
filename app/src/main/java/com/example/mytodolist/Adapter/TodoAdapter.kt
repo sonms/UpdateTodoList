@@ -39,8 +39,11 @@ class TodoAdapter(var data : MutableList<TodoListData?>) : RecyclerView.Adapter<
     private val checkBoxStatus = SparseBooleanArray()
     //검색
     var listFilter = ListFilter() //postfilter
-    var filterContent =  data//mutableListOf<TodoListData?>() //filterpost
+    var filterContent = data //data-문제 //mutableListOf<TodoListData?>() //filterpost
 
+    init {
+        filterContent.addAll(listData)
+    }
 
     inner class TodoViewHolder(var todoItemBinding: TodoItemBinding) : RecyclerView.ViewHolder(todoItemBinding.root) {
         private var position : Int? = null
@@ -105,11 +108,6 @@ class TodoAdapter(var data : MutableList<TodoListData?>) : RecyclerView.Adapter<
         val processBar : ProgressBar = loadingBinding.loadingPb
     }
 
-
-    init {
-        filterContent.addAll(listData)
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         var inflater : LayoutInflater = parent.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         context = parent.context
@@ -168,23 +166,27 @@ class TodoAdapter(var data : MutableList<TodoListData?>) : RecyclerView.Adapter<
     inner class ListFilter : Filter() {
         override fun performFiltering(constraint: CharSequence): FilterResults {
 
-            val filterString = constraint.toString()
+            //val filterString = constraint.toString()
             //공벡제외 아무런 값도 입력하지 않았을 경우 ->원본배열
             val filteredList : ArrayList<TodoListData?> = ArrayList<TodoListData?>()
 
             val results = FilterResults()
 
-            if (filterString.trim {it <= ' '}.isEmpty()) {
+            if (constraint.toString().lowercase(Locale.getDefault()).trim {it <= ' '}.isEmpty()) {
                 //필터링 작업으로 계산된 모든 값
-                results.values = listData
+                results.values = data
                 //필터링 작업으로 계산된 값의 수
-                results.count = listData.size
+                results.count = data.size
+
+                //filteredList.addAll(listData)
                 return results
             } else {
-                for (searchText in listData) {
-                    if (searchText!!.content.contains(filterString)) {
+                val fs = constraint.toString().lowercase(Locale.getDefault()).trim { it <= ' ' }
+                for (searchText in data) {
+                    if (searchText!!.content.lowercase(Locale.getDefault()).contains(fs)) {
                         filteredList.add(searchText)
                         println(filteredList)
+                        println(filterContent)
                     }
                 }
             }
@@ -198,7 +200,7 @@ class TodoAdapter(var data : MutableList<TodoListData?>) : RecyclerView.Adapter<
         @SuppressLint("NotifyDataSetChanged")
         override fun publishResults(constraint: CharSequence?, results: FilterResults) {
             filterContent.clear()
-            filterContent.addAll(results.values as ArrayList<TodoListData?>)
+            filterContent.addAll(results.values as Collection<TodoListData?>)
             notifyDataSetChanged()
         }
     }

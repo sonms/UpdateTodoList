@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -12,4 +13,11 @@
         app:queryHint = "search"
         app:showAsAction="always"
         app:actionViewClass="android.widget.SearchView"/>
+
+    <item
+        android:id="@+id/select_mode"
+        android:icon="@drawable/ic_baseline_nightlight_round_24"
+        app:showAsAction="always"
+        app:actionViewClass = "androidx.appcompat.widget.SwitchCompat"
+        android:title="TODO" />
 </menu>

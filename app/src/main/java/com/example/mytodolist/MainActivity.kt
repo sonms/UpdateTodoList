@@ -1,11 +1,17 @@
 package com.example.mytodolist
 
+import android.app.SearchManager
+import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.core.view.isEmpty
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -18,6 +24,7 @@ import com.example.mytodolist.navigation.AccountFragment
 import com.example.mytodolist.navigation.CalendarFragment
 import com.example.mytodolist.navigation.HomeFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.fragment_home.view.*
 
@@ -26,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mBinding : ActivityMainBinding
     private lateinit var main_content : LinearLayout //xml의 content를 담는 layout
     private lateinit var bottom_navigationview : BottomNavigationView
+    private lateinit var toolbar : androidx.appcompat.widget.Toolbar
     /*private var homeFragment : HomeFragment? = null
     private var blankFragment: BlankFragment? = null
     private var accountFragment: AccountFragment? = null*/
@@ -39,7 +47,6 @@ class MainActivity : AppCompatActivity() {
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         val view = mBinding.root
         setContentView(view)
-
         setFragment(TAG_HOME, HomeFragment())
 
         initBottomNavigationBar()

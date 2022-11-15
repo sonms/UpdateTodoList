@@ -1,34 +1,40 @@
 package com.example.mytodolist.navigation
 
+import android.animation.ObjectAnimator
 import android.app.Activity.RESULT_OK
 import android.app.SearchManager
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.content.Intent
+import android.content.SharedPreferences
+import android.content.res.Configuration.*
+import android.media.VolumeShaper.Configuration
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.*
-import android.view.inputmethod.EditorInfo
 import android.widget.Button
-import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.SwitchCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.mytodolist.*
 import com.example.mytodolist.Adapter.TodoAdapter
-import com.example.mytodolist.EditActivity
-import com.example.mytodolist.R
-import com.example.mytodolist.SwipeHelperCallback
 import com.example.mytodolist.databinding.FragmentHomeBinding
 import com.example.mytodolist.model.TodoListData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonDisposableHandle.parent
 import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.collections.ArrayList
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -45,6 +51,12 @@ class HomeFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var homeBinding: FragmentHomeBinding
+    private lateinit var mainActivity: MainActivity
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        mainActivity = context as MainActivity
+    }
     private var todoAdapter : TodoAdapter? = null
     private var dataPosition = 0 //수정시 데이터를 가져오기위한 인덱스
     private var checkBoxPosition = 0
@@ -59,6 +71,14 @@ class HomeFragment : Fragment() {
     private var searchData : MutableList<TodoListData?> = mutableListOf()
     lateinit var filterString : ArrayList<String>
     private var searchView: SearchView? = null
+    //mode 선택용
+    private var isSelect : Boolean = true //true-light, false-dark
+    private var mode : ImageButton? = null
+    private var switch : SwitchCompat? = null
+    //상태유지
+    lateinit var option : SharedPreferences
+    //fab 메뉴용
+    private var isFabOpen = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,7 +95,7 @@ class HomeFragment : Fragment() {
         homeBinding = FragmentHomeBinding.inflate(inflater,container,false)
         tempData = data
         searchData.addAll(data)
-
+        //option = mainActivity.getSharedPreferences("option", MODE_PRIVATE)
         /*model.getAll().observe(this, Observer{
             noticeAdapter.setList(it.content)
 
@@ -89,7 +109,39 @@ class HomeFragment : Fragment() {
         initScrollListener()
         //툴바(search) 메뉴세팅
         setHasOptionsMenu(true)
+
+        //fabmenu
+        homeBinding.fabMenu.setOnClickListener {
+            toggleFab()
+        }
+
+        //darkmode
+        homeBinding.fabMode.setOnClickListener {
+            if (isSelect) {
+                isSelect = false
+                println(isSelect)
+                homeBinding.fabMode!!.setImageResource(R.drawable.ic_baseline_nightlight_round_24)
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            } else if (!isSelect){
+                homeBinding.fabMode!!.setImageResource(R.drawable.ic_baseline_light_mode_24)
+                isSelect = true
+                println(isSelect)
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+        }
+
+        //type으로 추가인지 수정인지 받아오기
+        homeBinding.fabAdd.setOnClickListener {
+            val intent = Intent(activity, EditActivity::class.java).apply {
+                putExtra("type","ADD")
+            }
+            requestActivity.launch(intent)
+
+            todoAdapter!!.notifyDataSetChanged()
+        }
+
         //새로고침 클릭 시 애니메이션
+        /*위로 새로고침하는 방식*/
         val reflashBtn : Button = homeBinding.reflashButton
         reflashBtn.setOnClickListener {
 
@@ -103,17 +155,7 @@ class HomeFragment : Fragment() {
             homeBinding.recyclerView.startLayoutAnimation()
         }
 
-        /*위로 새로고침하는 방식*/
 
-        //type으로 추가인지 수정인지 받아오기
-        homeBinding.fabAdd.setOnClickListener {
-            val intent = Intent(activity, EditActivity::class.java).apply {
-                putExtra("type","ADD")
-            }
-            requestActivity.launch(intent)
-
-            todoAdapter!!.notifyDataSetChanged()
-        }
 
         todoAdapter!!.setItemCheckBoxClickListener(object : TodoAdapter.ItemCheckBoxClickListener{
             override fun onClick(view: View, position: Int, itemId: Int) {
@@ -153,23 +195,33 @@ class HomeFragment : Fragment() {
             swipeHelperCallback.removePreviousFix(homeBinding.recyclerView)
             false
         }
+        //다크모드 테스트
+        val btn = homeBinding.test
+        btn.setOnCheckedChangeListener {_, isChecked ->
+            if (btn.isChecked) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+        }
 
         return homeBinding.root
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
 
-        inflater.inflate(R.menu.search_menu_item, menu)
+        inflater.inflate(R.menu.toolbar_menu_item, menu)
         //val item = menu?.findItem(R.id.menu_action_search)
 
 
         var searchManager = context?.getSystemService(Context.SEARCH_SERVICE) as SearchManager
         val searchItem : MenuItem = menu.findItem(R.id.menu_action_search)
+        val selectMode : MenuItem = menu.findItem(R.id.select_mode)
 
         if (searchItem != null) {
             //val searchET = searchView!!.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
             //searchET.hint = "Search.."
-            searchView = searchItem?.actionView as SearchView
+            searchView = searchItem.actionView as SearchView
             searchView!!.queryHint = "Search.."
             searchView!!.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 //검색버튼 입력시 호출, 근데 검색버튼이 없으므로 사용x
@@ -182,51 +234,76 @@ class HomeFragment : Fragment() {
                 override fun onQueryTextChange(s: String?): Boolean {
                     if (s != null) {
                         if (s.isNotEmpty()) {
-                        todoAdapter!!.filter.filter(s)
+                            todoAdapter!!.filter.filter(s)
                         //todoAdapter!!.filter.filter(s)
                         } else {
-
+                            //todoAdapter!!.filterContent.addAll(tempData)
+                            //todoAdapter!!.filter.filter(s)
+                            println(todoAdapter!!.filterContent)
                         }
                     }
-                    //todoAdapter!!.filter.filter(s)
-                    //val filterString = s!!.toLowerCase()
-                    /*if (s!!.isNotEmpty()) {
-                        searchData.clear()
-                        val filterString = s.lowercase(Locale.getDefault())
-
-                        data.forEach {
-                            if (it!!.content.lowercase(Locale.getDefault()).contains(filterString)) {
-                                searchData.add(it)
-                                println(it)
-                                homeBinding.recyclerView.adapter!!.notifyDataSetChanged()
-                            }
-                        }
-                        /*for (searchText in data) {
-                            if (searchText!!.content.trim().contains(filterString)) {
-                                searchData.add(searchText)
-                                //todoAdapter!!.filterContent.addAll(searchData)
-                            }
-                        }*/
-                    }
-                    else {
-                        searchData.clear()
-                        searchData.addAll(data)
-                        //todoAdapter!!.filterContent.addAll(searchData)
-                        todoAdapter!!.notifyDataSetChanged()
-                    }*/
                     return false
                 }
             })
         }
 
+        switch = selectMode.actionView as SwitchCompat
+
+        switch!!.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (isChecked) {
+
+            } else {
+
+            }
+        }
+
+        //mode = selectMode.actionView as ImageButton
+
+        /*mode!!.setOnCheckedChangeListener { _, isChecked ->
+            if (isSelect) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+        }*/
+
+        /*mode!!.setOnClickListener {
+            if (isSelect) {
+                isSelect = false
+                mode!!.setImageResource(R.drawable.ic_baseline_nightlight_round_24)
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            } else {
+                mode!!.setImageResource(R.drawable.ic_baseline_light_mode_24)
+                isSelect = true
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+        }*/
+
 
         return super.onCreateOptionsMenu(menu, inflater)
     }
 
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.select_mode -> {
+                isSelect = !item.isChecked
+                item.isChecked = isSelect
+                true
+            }
+            else -> false
+        }
         return super.onOptionsItemSelected(item)
     }
+    interface OnDayNightStateChanged {
 
+        fun onDayNightApplied(state: Int)
+
+        companion object{
+            const val DAY = 1
+            const val NIGHT = 2
+        }
+    }
 
     private val requestActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -308,6 +385,20 @@ class HomeFragment : Fragment() {
                 }
             }
         })
+    }
+
+    //fab 메뉴 에니메이션
+    private fun toggleFab() {
+        if (isFabOpen) {
+            ObjectAnimator.ofFloat(homeBinding.fabAdd, "translationY", 0f).apply { start() }
+            ObjectAnimator.ofFloat(homeBinding.fabMode, "translationY", 0f).apply { start() }
+            homeBinding.fabMenu.setImageResource(android.R.drawable.ic_input_add)
+        } else {
+            ObjectAnimator.ofFloat(homeBinding.fabAdd, "translationY", -200f).apply { start() }
+            ObjectAnimator.ofFloat(homeBinding.fabMode, "translationY", -400f).apply { start() }
+            homeBinding.fabMenu.setImageResource(android.R.drawable.ic_delete)
+        }
+        isFabOpen = !isFabOpen
     }
 
     private fun getMoreItem() {

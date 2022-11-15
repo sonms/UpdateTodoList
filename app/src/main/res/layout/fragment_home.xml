@@ -37,15 +37,56 @@
         app:layout_constraintEnd_toStartOf="@+id/fabAdd" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:fabSize="mini"
+        android:src="@drawable/ic_baseline_nightlight_round_24"
+        app:layout_constraintTop_toTopOf="@id/fabMenu"
+        app:layout_constraintBottom_toBottomOf="@id/fabMenu"
+        app:layout_constraintStart_toStartOf="@id/fabMenu"
+        app:layout_constraintEnd_toEndOf="@id/fabMenu"
+        app:tint="#FFEB3B"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAdd"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:clickable="true"
         android:focusable="true"
+        app:fabSize="mini"
+        android:src="@android:drawable/ic_menu_edit"
+        app:layout_constraintTop_toTopOf="@id/fabMenu"
+        app:layout_constraintBottom_toBottomOf="@id/fabMenu"
+        app:layout_constraintStart_toStartOf="@id/fabMenu"
+        app:layout_constraintEnd_toEndOf="@id/fabMenu"
+        app:tint="@color/white" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="28dp"
+        android:clickable="true"
+        android:focusable="true"
         android:src="@android:drawable/ic_input_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:tint="@color/white" />
+
+    <!--다크모드 테스트-->
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/reflash_button"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

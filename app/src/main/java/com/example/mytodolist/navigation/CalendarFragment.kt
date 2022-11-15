@@ -87,7 +87,7 @@ class CalendarFragment : Fragment() {
     private var dot_y : Int = 0
     private var dot_m : Int = 0
     private var dot_d : Int = 0
-    private var date = CalendarDay.today()
+    private var date = CalendarDay.today().month + 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -169,7 +169,7 @@ class CalendarFragment : Fragment() {
     private fun initViewPager() {
         scheduleAdapter = ScheduleAdapter()
         scheduleAdapter!!.scheduleData = addScheduleData
-        calendarBinding.scheduleViewpager2.adapter = scheduleAdapter
+        calendarBinding.shceduleRecyclerview.adapter = scheduleAdapter
         //calendarBinding.scheduleViewpager2.orientation = ViewPager2.ORIENTATION_HORIZONTAL
     }
 
@@ -199,7 +199,6 @@ class CalendarFragment : Fragment() {
                     CoroutineScope(Dispatchers.IO).launch {
                         addScheduleData.add(schedule)
                     }
-                    calendarBinding.setDate.text = date.toString()
                     Toast.makeText(activity, "추가되었습니다.", Toast.LENGTH_SHORT).show()
                 }
             }
