@@ -40,12 +40,24 @@ class MainActivity : AppCompatActivity() {
     private val TAG_HOME = "home_fragment"
     private val TAG_CALENDAR = "calendar_fragment"
     private val TAG_ACCOUNT = "account_fragment"
-
+    private var sharedPref : SharedPref? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+
+        sharedPref = SharedPref(this)
+        if (sharedPref!!.loadNightModeState()) {
+            setTheme(R.style.darktheme)
+        } else {
+            setTheme(R.style.AppTheme)
+        }
+
+
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         val view = mBinding.root
+        super.onCreate(savedInstanceState)
+
+
+
         setContentView(view)
         setFragment(TAG_HOME, HomeFragment())
 

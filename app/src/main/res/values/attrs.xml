@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ds" >
+        <attr name="backgroundcolor1" format="color" />
+        <attr name="toolbar" format="color" />
+        <attr name="textcolor" format="color" />
+        <attr name="tintcolor" format="color" />
+        <attr name="buttoncolor" format="color" />
+        <attr name="bottomnavibackground" format="color" />
+        <attr name="floatbutton" format="color"/>
+        <attr name="modeselect" format="color"/>
+    </declare-styleable>
+</resources>

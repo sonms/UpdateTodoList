@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme. -->
+    <!-- Light/Day Mode theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">#2196F3</item>
+        <item name="colorPrimaryDark">#1976D2</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="backgroundcolor1">#FCFCFC</item>
+        <item name="toolbar">#4E5DB3</item>
+        <item name="textcolor">#000000</item>
+        <item name="tintcolor">#4E5DB3</item>
+        <item name="buttoncolor">#2196F3</item>
+        <item name="bottomnavibackground">#FFFFFF</item>
+        <item name="floatbutton">#4E5DB3</item>
+        <item name="modeselect">#FCFCFC</item>
+    </style>
+
+
+    <!-- Night / dark  Mode theme. -->
+    <style name="darktheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">#212121</item>
+        <item name="colorPrimaryDark">#000000</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="backgroundcolor1">#303030</item>
+        <item name="toolbar">#424242</item>
+        <item name="textcolor">#ffffff</item>
+        <item name="tintcolor">#ffffff</item>
+        <item name="buttoncolor">#2196F3</item>
+        <item name="bottomnavibackground">#212121</item>
+        <item name="floatbutton">#1A1A1B</item>
+        <item name="modeselect">#FCFCFC</item>
+    </style>
+
+</resources>

@@ -4,23 +4,23 @@ import android.animation.ObjectAnimator
 import android.app.Activity.RESULT_OK
 import android.app.SearchManager
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration.*
-import android.media.VolumeShaper.Configuration
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.preference.Preference.OnPreferenceChangeListener
 import android.view.*
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.ImageSwitcher
+import android.widget.ImageView
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SwitchCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,7 +31,6 @@ import com.example.mytodolist.databinding.FragmentHomeBinding
 import com.example.mytodolist.model.TodoListData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonDisposableHandle.parent
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -41,22 +40,13 @@ import java.util.*
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [HomeFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
+
+
 class HomeFragment : Fragment() {
-    // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var homeBinding: FragmentHomeBinding
     private lateinit var mainActivity: MainActivity
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
-        mainActivity = context as MainActivity
-    }
     private var todoAdapter : TodoAdapter? = null
     private var dataPosition = 0 //수정시 데이터를 가져오기위한 인덱스
     private var checkBoxPosition = 0
@@ -73,12 +63,13 @@ class HomeFragment : Fragment() {
     private var searchView: SearchView? = null
     //mode 선택용
     private var isSelect : Boolean = true //true-light, false-dark
-    private var mode : ImageButton? = null
+    private var mode : ImageSwitcher? = null
     private var switch : SwitchCompat? = null
     //상태유지
     lateinit var option : SharedPreferences
     //fab 메뉴용
     private var isFabOpen = false
+    var sharedPref : SharedPref? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,6 +79,12 @@ class HomeFragment : Fragment() {
         }
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        mainActivity = context as MainActivity
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -95,6 +92,12 @@ class HomeFragment : Fragment() {
         homeBinding = FragmentHomeBinding.inflate(inflater,container,false)
         tempData = data
         searchData.addAll(data)
+        sharedPref = this.context?.let { SharedPref(it) }
+        if (sharedPref!!.loadNightModeState()) {
+            context?.setTheme(R.style.darktheme)
+        } else {
+            context?.setTheme(R.style.AppTheme)
+        }
         //option = mainActivity.getSharedPreferences("option", MODE_PRIVATE)
         /*model.getAll().observe(this, Observer{
             noticeAdapter.setList(it.content)
@@ -103,7 +106,6 @@ class HomeFragment : Fragment() {
             // 새로운 게시물이 추가되었다는 것을 알려줌 (추가된 부분만 새로고침)
             noticeAdapter.notifyItemRangeInserted((page - 1) * 10, 10)
         })*/
-
         initRecyclerView()
         initSwipeRefrech()
         initScrollListener()
@@ -198,10 +200,12 @@ class HomeFragment : Fragment() {
         //다크모드 테스트
         val btn = homeBinding.test
         btn.setOnCheckedChangeListener {_, isChecked ->
-            if (btn.isChecked) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            if (isChecked) {
+                sharedPref!!.setNightModeState(true)
+                restartApp()
             } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                sharedPref!!.setNightModeState(false)
+                restartApp()
             }
         }
 
@@ -248,22 +252,34 @@ class HomeFragment : Fragment() {
         }
 
         switch = selectMode.actionView as SwitchCompat
-
+        if (sharedPref!!.loadNightModeState()) {
+            switch!!.isChecked = true
+        }
         switch!!.setOnCheckedChangeListener { buttonView, isChecked ->
             if (isChecked) {
-
+                sharedPref!!.setNightModeState(true)
+                restartApp()
             } else {
-
+                sharedPref!!.setNightModeState(false)
+                restartApp()
             }
         }
 
-        //mode = selectMode.actionView as ImageButton
-
-        /*mode!!.setOnCheckedChangeListener { _, isChecked ->
+        /*mode = selectMode.actionView as ImageSwitcher
+        if (sharedPref!!.loadNightModeState()) {
+            mode!!.isSelected = true
+        }
+        mode!!.setOnClickListener {
             if (isSelect) {
+                isSelect = false
+                mode!!.setImageResource(R.drawable.ic_baseline_light_mode_24)
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                restartApp()
             } else {
+                isSelect = true
+                mode!!.setImageResource(R.drawable.ic_baseline_nightlight_round_24)
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                restartApp()
             }
         }*/
 
@@ -295,14 +311,12 @@ class HomeFragment : Fragment() {
         }
         return super.onOptionsItemSelected(item)
     }
-    interface OnDayNightStateChanged {
 
-        fun onDayNightApplied(state: Int)
-
-        companion object{
-            const val DAY = 1
-            const val NIGHT = 2
-        }
+    //테마 변경 시 적용을 위한 재시작
+    fun restartApp() {
+        val intent = Intent(context?.applicationContext, MainActivity::class.java)
+        activity?.startActivity(intent)
+        activity?.finish()
     }
 
     private val requestActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {

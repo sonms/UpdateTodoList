@@ -66,6 +66,7 @@
         app:layout_constraintEnd_toEndOf="@id/fabMenu"
         app:tint="@color/white" />
 
+    <!--borderwidth=태두리조정, backgourndTind=이걸로 floating색조정-->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabMenu"
         android:layout_width="wrap_content"
@@ -73,6 +74,8 @@
         android:layout_margin="28dp"
         android:clickable="true"
         android:focusable="true"
+        android:backgroundTint="?attr/floatbutton"
+        app:borderWidth="0dp"
         android:src="@android:drawable/ic_input_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

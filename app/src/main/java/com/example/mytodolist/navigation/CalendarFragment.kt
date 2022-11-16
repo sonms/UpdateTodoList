@@ -18,6 +18,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.example.mytodolist.Adapter.ScheduleAdapter
 import com.example.mytodolist.Adapter.TodoAdapter
@@ -64,6 +65,7 @@ class CalendarFragment : Fragment() {
     }
 
     private var scheduleAdapter : ScheduleAdapter? = null
+    private var manager : LinearLayoutManager = LinearLayoutManager(activity)
 
     //시작 달의 인스턴스(현재달)
     var startMonthCalendar = Calendar.getInstance()
@@ -87,7 +89,6 @@ class CalendarFragment : Fragment() {
     private var dot_y : Int = 0
     private var dot_m : Int = 0
     private var dot_d : Int = 0
-    private var date = CalendarDay.today().month + 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -106,13 +107,8 @@ class CalendarFragment : Fragment() {
 
         //마지막 달은 현재 달의 3을 더한 것 만큼 ex 1월->6?5?월까지만 보여줌
         endMonthCalendar.set(Calendar.MONTH, currentMonth+5)
-        addScheduleData.add(ScheduleData(0, "test", "10시"))
-        addScheduleData.add(ScheduleData(1, "test1", "50시"))
-        addScheduleData.add(ScheduleData(2, "test2", "30시"))
-        addScheduleData.add(ScheduleData(3, "test3", "20시"))
 
-
-        initViewPager()
+        initScheduleRecyclerview()
         //세팅 현재 10월 -> 3?월까지만 보여줌
        /*calendarBinding.calendarview.state().edit()
             .setFirstDayOfWeek(Calendar.SUNDAY)
@@ -122,6 +118,10 @@ class CalendarFragment : Fragment() {
             .setMaximumDate(CalendarDay.from(currentYear, currentMonth+5, endMonthCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)))
             .setCalendarDisplayMode(CalendarMode.MONTHS)
             .commit()*/
+
+
+
+        //캘린더뷰 클릭 시 그에 해당하는 데이터를 보여줌
         calendarBinding.calendarview.setOnDateChangedListener(OnDateSelectedListener { widget, date, selected ->
             //test용 변수 .. tartgetDay는 나중에 toast나 다른 기능에 사용예정
             dot_y = date.year
@@ -139,14 +139,23 @@ class CalendarFragment : Fragment() {
             calendarBinding.calendarview.addDecorator(EventDecorator(Collections.singleton(date), Color.BLUE)) //선택시찍힘
             //calendarBinding.calendarview.addDecorator(EventDecorator(calendarList, mainActivity, Color.BLUE))
             //dotDecorator(calendarBinding.calendarview)
+
             //선택초기화화
-            calendarBinding.calendarview.clearSelection()
+            //calendarBinding.calendarview.clearSelection()
+
+
+            //데이터 추가
+            //추가..
+        })
+        calendarBinding.scheduleFabAdd.setOnClickListener {
             val intent = Intent(activity, ScheduleEditActivity::class.java).apply {
                 putExtra("type","schedule")
                 putExtra("time", targetDay)
             }
             requestActivity.launch(intent)
-        })
+
+            scheduleAdapter!!.notifyDataSetChanged()
+        }
 
         val startDate = CalendarDay.from(currentYear, currentMonth, currentDate)
         val endDate = CalendarDay.from(endMonthCalendar.get(Calendar.YEAR), endMonthCalendar.get(Calendar.MONTH), endMonthCalendar.get(Calendar.DATE))
@@ -166,11 +175,12 @@ class CalendarFragment : Fragment() {
         return calendarBinding.root
     }
 
-    private fun initViewPager() {
+    private fun initScheduleRecyclerview() {
         scheduleAdapter = ScheduleAdapter()
         scheduleAdapter!!.scheduleData = addScheduleData
         calendarBinding.shceduleRecyclerview.adapter = scheduleAdapter
         //calendarBinding.scheduleViewpager2.orientation = ViewPager2.ORIENTATION_HORIZONTAL
+        calendarBinding.shceduleRecyclerview.layoutManager = manager
     }
 
 
@@ -198,10 +208,12 @@ class CalendarFragment : Fragment() {
                 3 -> {
                     CoroutineScope(Dispatchers.IO).launch {
                         addScheduleData.add(schedule)
+                        println(schedule)
                     }
                     Toast.makeText(activity, "추가되었습니다.", Toast.LENGTH_SHORT).show()
                 }
             }
+            scheduleAdapter!!.notifyDataSetChanged()
         }
     }
 

@@ -7,7 +7,7 @@
         android:color="@color/black"
         />
     <solid
-        android:color="@color/white"
+        android:color="?attr/backgroundcolor1"
         />
     <padding
         android:bottom="2dp"

@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="?attr/backgroundcolor1"
     tools:context=".MainActivity">
 
 
@@ -13,6 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:background="?attr/backgroundcolor1"
         android:orientation="vertical"
         />
 
@@ -20,6 +22,9 @@
         android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="56dp"
+        android:background="?attr/bottomnavibackground"
+        app:itemIconTint="?attr/tintcolor"
+        app:itemTextColor="?attr/tintcolor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

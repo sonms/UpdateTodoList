@@ -11,6 +11,7 @@ import com.example.mytodolist.databinding.ItemScheduleBinding
 import com.example.mytodolist.databinding.TodoItemBinding
 import com.example.mytodolist.databinding.ViewitemScheduleBinding
 import com.example.mytodolist.model.ScheduleData
+import com.example.mytodolist.model.TodoListData
 
 class ScheduleAdapter : RecyclerView.Adapter<ScheduleAdapter.ScheduleViewHolder>(){
     private lateinit var binding : ViewitemScheduleBinding
@@ -21,8 +22,10 @@ class ScheduleAdapter : RecyclerView.Adapter<ScheduleAdapter.ScheduleViewHolder>
     inner class ScheduleViewHolder(private val binding : ViewitemScheduleBinding ) : RecyclerView.ViewHolder(binding.root) {
         private var position : Int? = null
         private val setDate : String = ""
+        var tv_date = binding.scheduelTv
         fun bind(scheduleData: ScheduleData, position : Int) {
-            
+            this.position = position
+            tv_date.text = scheduleData.scheduleText
         }
     }
 
@@ -34,6 +37,8 @@ class ScheduleAdapter : RecyclerView.Adapter<ScheduleAdapter.ScheduleViewHolder>
 
     override fun onBindViewHolder(holder: ScheduleViewHolder, position: Int) {
         holder.bind(scheduleData[position]!!, position)
+        val content : ScheduleData = scheduleData[position]!!
+        //holder.tv_date.text = content.scheduleText
     }
 
     override fun getItemCount(): Int {
