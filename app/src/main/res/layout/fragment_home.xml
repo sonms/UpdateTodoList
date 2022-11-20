@@ -31,8 +31,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
-        android:text="새로고침"
         android:layout_marginBottom="20dp"
+        android:text="새로고침"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/fabAdd" />
 
@@ -43,13 +43,14 @@
         android:layout_margin="20dp"
         android:clickable="true"
         android:focusable="true"
+        android:src="@drawable/ic_baseline_delete_24"
+        android:contentDescription="@null"
         app:fabSize="mini"
-        android:src="@drawable/ic_baseline_nightlight_round_24"
-        app:layout_constraintTop_toTopOf="@id/fabMenu"
         app:layout_constraintBottom_toBottomOf="@id/fabMenu"
-        app:layout_constraintStart_toStartOf="@id/fabMenu"
         app:layout_constraintEnd_toEndOf="@id/fabMenu"
-        app:tint="#FFEB3B"/>
+        app:layout_constraintStart_toStartOf="@id/fabMenu"
+        app:layout_constraintTop_toTopOf="@id/fabMenu"
+        app:tint="#E5F3F4" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAdd"
@@ -58,12 +59,13 @@
         android:layout_margin="20dp"
         android:clickable="true"
         android:focusable="true"
-        app:fabSize="mini"
         android:src="@android:drawable/ic_menu_edit"
-        app:layout_constraintTop_toTopOf="@id/fabMenu"
+        android:contentDescription="@null"
+        app:fabSize="mini"
         app:layout_constraintBottom_toBottomOf="@id/fabMenu"
-        app:layout_constraintStart_toStartOf="@id/fabMenu"
         app:layout_constraintEnd_toEndOf="@id/fabMenu"
+        app:layout_constraintStart_toStartOf="@id/fabMenu"
+        app:layout_constraintTop_toTopOf="@id/fabMenu"
         app:tint="@color/white" />
 
     <!--borderwidth=태두리조정, backgourndTind=이걸로 floating색조정-->
@@ -72,16 +74,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="28dp"
+        android:backgroundTint="?attr/floatbutton"
+        android:contentDescription="@null"
         android:clickable="true"
         android:focusable="true"
-        android:backgroundTint="?attr/floatbutton"
-        app:borderWidth="0dp"
         android:src="@android:drawable/ic_input_add"
+        app:borderWidth="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:tint="@color/white" />
 
-    <!--다크모드 테스트-->
+    <!--다크모드 테스트
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/test"
         android:layout_width="wrap_content"
@@ -90,6 +93,6 @@
         android:layout_marginBottom="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/reflash_button"
-        />
+        />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

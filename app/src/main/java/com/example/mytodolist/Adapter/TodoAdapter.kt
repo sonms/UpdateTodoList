@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.graphics.Paint
 import android.util.SparseBooleanArray
 import android.view.LayoutInflater
@@ -11,9 +12,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
+import com.example.mytodolist.R
+import com.example.mytodolist.TemporaryStorageActivity
 import com.example.mytodolist.databinding.RvLoadingBinding
 import com.example.mytodolist.databinding.TodoItemBinding
 import com.example.mytodolist.model.TodoListData
+import com.example.mytodolist.navigation.HomeFragment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -32,9 +39,10 @@ class TodoAdapter(var data : MutableList<TodoListData?>) : RecyclerView.Adapter<
     }
 
     private lateinit var todoItemBinding: TodoItemBinding
-    private lateinit var loadingBinding: RvLoadingBinding
+
     var listData = mutableListOf<TodoListData?>() //post , unfilter
-    var temp = mutableListOf<TodoListData>() //update용
+    var temp : TodoListData? = null//넘겨주기용
+    private var tempAdapter : TemporaryStorageAdapter? = null
     private lateinit var context : Context
     private val checkBoxStatus = SparseBooleanArray()
     //검색
@@ -90,6 +98,8 @@ class TodoAdapter(var data : MutableList<TodoListData?>) : RecyclerView.Adapter<
                 builder.setNegativeButton("예",
                     DialogInterface.OnClickListener { dialog, which ->
                         ad.dismiss()
+                        temp = listData[position]!!
+                        //extraditeData()
                         removeData(this.layoutPosition)
                     })
 
@@ -122,7 +132,7 @@ class TodoAdapter(var data : MutableList<TodoListData?>) : RecyclerView.Adapter<
 
 
     }
-    //checkboxstatus에서 indexoutofboundsexception
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is TodoViewHolder) {
             holder.bind(listData[position]!!, position)
@@ -210,6 +220,19 @@ class TodoAdapter(var data : MutableList<TodoListData?>) : RecyclerView.Adapter<
     fun removeData(position: Int) {
         listData.removeAt(position)
         notifyItemRemoved(position)
+    }
+
+    //삭제 데이터 넘겨주기
+    fun extraditeData() {
+        val tempdata = temp
+
+        /*val intent = Intent(context, TemporaryStorageActivity::class.java).apply {
+            putExtra("item", tempdata)
+        }*/
+        /*tempAdapter = TemporaryStorageAdapter()
+        tempAdapter!!.storageData.add(tempdata)
+        //println(temp)
+        tempAdapter!!.notifyDataSetChanged()*/
     }
 
     fun swapData(beforePos : Int, afterPos : Int) {

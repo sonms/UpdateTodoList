@@ -5,12 +5,9 @@ import android.app.Activity.RESULT_OK
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
-import android.content.res.Configuration.*
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.preference.Preference.OnPreferenceChangeListener
 import android.view.*
 import android.widget.Button
 import android.widget.ImageButton
@@ -55,8 +52,8 @@ class HomeFragment : Fragment() {
     private var isLoading = false
     //모든 item
     private var data : MutableList<TodoListData?> = mutableListOf()
-    //잠깐 data저장을 사용하기 위한 list
-    private var tempData : MutableList<TodoListData?> = mutableListOf()
+    //삭제 후 임시저장 item 용
+    var tempData : TodoListData? = null
     //검색용
     private var searchData : MutableList<TodoListData?> = mutableListOf()
     lateinit var filterString : ArrayList<String>
@@ -66,10 +63,10 @@ class HomeFragment : Fragment() {
     private var mode : ImageSwitcher? = null
     private var switch : SwitchCompat? = null
     //상태유지
-    lateinit var option : SharedPreferences
+    var sharedPref : SharedPref? = null
     //fab 메뉴용
     private var isFabOpen = false
-    var sharedPref : SharedPref? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,9 +85,9 @@ class HomeFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         homeBinding = FragmentHomeBinding.inflate(inflater,container,false)
-        tempData = data
+        //tempData = data
         searchData.addAll(data)
         sharedPref = this.context?.let { SharedPref(it) }
         if (sharedPref!!.loadNightModeState()) {
@@ -117,19 +114,12 @@ class HomeFragment : Fragment() {
             toggleFab()
         }
 
-        //darkmode
+        //삭제 임시 저장 액티비티로 이동
         homeBinding.fabMode.setOnClickListener {
-            if (isSelect) {
-                isSelect = false
-                println(isSelect)
-                homeBinding.fabMode!!.setImageResource(R.drawable.ic_baseline_nightlight_round_24)
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            } else if (!isSelect){
-                homeBinding.fabMode!!.setImageResource(R.drawable.ic_baseline_light_mode_24)
-                isSelect = true
-                println(isSelect)
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            val intent = Intent(activity, TemporaryStorageActivity::class.java).apply {
+                putExtra("Temp", "delete")
             }
+            requestActivity.launch(intent)
         }
 
         //type으로 추가인지 수정인지 받아오기
@@ -159,6 +149,7 @@ class HomeFragment : Fragment() {
 
 
 
+        //체크박스 클릭 시
         todoAdapter!!.setItemCheckBoxClickListener(object : TodoAdapter.ItemCheckBoxClickListener{
             override fun onClick(view: View, position: Int, itemId: Int) {
                 CoroutineScope(Dispatchers.IO).launch {
@@ -171,7 +162,7 @@ class HomeFragment : Fragment() {
                 todoAdapter!!.notifyDataSetChanged()
             }
         })
-
+        //recyclerview item클릭 시
         todoAdapter!!.setItemClickListener(object :TodoAdapter.ItemClickListener{
             override fun onClick(view: View, position: Int, itemId: Int) {
                 CoroutineScope(Dispatchers.IO).launch {
@@ -198,7 +189,7 @@ class HomeFragment : Fragment() {
             false
         }
         //다크모드 테스트
-        val btn = homeBinding.test
+        /*val btn = homeBinding.test
         btn.setOnCheckedChangeListener {_, isChecked ->
             if (isChecked) {
                 sharedPref!!.setNightModeState(true)
@@ -207,7 +198,7 @@ class HomeFragment : Fragment() {
                 sharedPref!!.setNightModeState(false)
                 restartApp()
             }
-        }
+        }*/
 
         return homeBinding.root
     }
@@ -251,11 +242,13 @@ class HomeFragment : Fragment() {
             })
         }
 
+
+        //다크 모드 활성화 가능한 옵션메뉴
         switch = selectMode.actionView as SwitchCompat
         if (sharedPref!!.loadNightModeState()) {
             switch!!.isChecked = true
         }
-        switch!!.setOnCheckedChangeListener { buttonView, isChecked ->
+        switch!!.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 sharedPref!!.setNightModeState(true)
                 restartApp()
@@ -364,7 +357,6 @@ class HomeFragment : Fragment() {
             todoAdapter!!.listData = data//dataSet()
             homeBinding.recyclerView.startLayoutAnimation()
             homeBinding.refreshSwipeLayout.isRefreshing = false
-
         }
         todoAdapter!!.notifyDataSetChanged()
     }

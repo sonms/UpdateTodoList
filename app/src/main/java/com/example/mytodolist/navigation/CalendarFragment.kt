@@ -147,6 +147,7 @@ class CalendarFragment : Fragment() {
             //데이터 추가
             //추가..
         })
+
         calendarBinding.scheduleFabAdd.setOnClickListener {
             val intent = Intent(activity, ScheduleEditActivity::class.java).apply {
                 putExtra("type","schedule")
