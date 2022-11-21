@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
-import android.content.Intent
 import android.graphics.Paint
 import android.util.SparseBooleanArray
 import android.view.LayoutInflater
@@ -12,15 +11,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mytodolist.R
-import com.example.mytodolist.TemporaryStorageActivity
 import com.example.mytodolist.databinding.RvLoadingBinding
 import com.example.mytodolist.databinding.TodoItemBinding
 import com.example.mytodolist.model.TodoListData
-import com.example.mytodolist.navigation.HomeFragment
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -42,6 +35,7 @@ class TodoAdapter(var data : MutableList<TodoListData?>) : RecyclerView.Adapter<
 
     var listData = mutableListOf<TodoListData?>() //post , unfilter
     var temp : TodoListData? = null//넘겨주기용
+    var testData : ArrayList<TodoListData?> = ArrayList<TodoListData?>()
     private var tempAdapter : TemporaryStorageAdapter? = null
     private lateinit var context : Context
     private val checkBoxStatus = SparseBooleanArray()
@@ -98,8 +92,10 @@ class TodoAdapter(var data : MutableList<TodoListData?>) : RecyclerView.Adapter<
                 builder.setNegativeButton("예",
                     DialogInterface.OnClickListener { dialog, which ->
                         ad.dismiss()
-                        temp = listData[position]!!
+                        temp = listData[this.layoutPosition]!!
                         //extraditeData()
+                        testData.add(temp)
+                        println(testData)
                         removeData(this.layoutPosition)
                     })
 
@@ -219,6 +215,7 @@ class TodoAdapter(var data : MutableList<TodoListData?>) : RecyclerView.Adapter<
     //데이터 Handle 함수
     fun removeData(position: Int) {
         listData.removeAt(position)
+        temp = null
         notifyItemRemoved(position)
     }
 

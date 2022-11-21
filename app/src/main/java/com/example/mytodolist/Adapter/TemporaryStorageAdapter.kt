@@ -48,4 +48,9 @@ class TemporaryStorageAdapter : RecyclerView.Adapter<TemporaryStorageAdapter.Tem
         storageData.removeAt(position)
         notifyItemRemoved(position)
     }
+
+    fun addData(itemData : TodoListData) {
+        storageData.add(itemData)
+        notifyDataSetChanged()
+    }
 }

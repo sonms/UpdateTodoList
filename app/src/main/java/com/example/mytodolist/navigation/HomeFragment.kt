@@ -54,6 +54,7 @@ class HomeFragment : Fragment() {
     private var data : MutableList<TodoListData?> = mutableListOf()
     //삭제 후 임시저장 item 용
     var tempData : TodoListData? = null
+    private var tempDataList : MutableList<TodoListData?> = mutableListOf()
     //검색용
     private var searchData : MutableList<TodoListData?> = mutableListOf()
     lateinit var filterString : ArrayList<String>
@@ -117,7 +118,8 @@ class HomeFragment : Fragment() {
         //삭제 임시 저장 액티비티로 이동
         homeBinding.fabMode.setOnClickListener {
             val intent = Intent(activity, TemporaryStorageActivity::class.java).apply {
-                putExtra("Temp", "delete")
+                putExtra("type", "delete")
+                putExtra("item", todoAdapter!!.testData)
             }
             requestActivity.launch(intent)
         }
@@ -128,7 +130,6 @@ class HomeFragment : Fragment() {
                 putExtra("type","ADD")
             }
             requestActivity.launch(intent)
-
             todoAdapter!!.notifyDataSetChanged()
         }
 

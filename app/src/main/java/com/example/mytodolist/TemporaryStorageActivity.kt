@@ -14,27 +14,37 @@ class TemporaryStorageActivity : AppCompatActivity() {
     private var temporaryStorageAdapter : TemporaryStorageAdapter? = null
     private var tempStorage = mutableListOf<TodoListData?>()
     private var manager : LinearLayoutManager = LinearLayoutManager(this)
+    private var tempItem : ArrayList<TodoListData?> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         temporaryStorageBinding = ActivityTemporaryStorageBinding.inflate(layoutInflater)
         setContentView(temporaryStorageBinding.root)
 
+        val type = intent.getStringExtra("type")
+
+
         initStorageRecyclerView()
+
+        //받는거 하나 보여주는 거 하나 따로..?
+        if (type.equals("delete")){
+            tempItem = intent.getSerializableExtra("item") as ArrayList<TodoListData?>
+            tempStorage.addAll(tempItem)
+        }
 
         temporaryStorageBinding.testData.setOnClickListener {
             tempStorage.clear()
 
-            temporaryStorageAdapter!!.storageData = dataSet()
+            //temporaryStorageAdapter!!.storageData = dataSet()
 
             temporaryStorageAdapter!!.notifyDataSetChanged()
         }
 
 
-        if (temporaryStorageAdapter!!.storageData.size == 0) {
-            println(temporaryStorageAdapter!!.storageData.size)
+        if (temporaryStorageAdapter!!.itemCount == 0) {
             temporaryStorageBinding.nullTv.visibility = View.VISIBLE
         } else {
+            println(temporaryStorageAdapter!!.itemCount)
             temporaryStorageBinding.nullTv.visibility = View.GONE
         }
     }
