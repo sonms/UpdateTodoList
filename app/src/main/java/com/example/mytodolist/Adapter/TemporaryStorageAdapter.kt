@@ -12,7 +12,8 @@ class TemporaryStorageAdapter : RecyclerView.Adapter<TemporaryStorageAdapter.Tem
 
     private lateinit var temporaryStorageItemBinding: TemporaryStorageItemBinding
     private lateinit var context: Context
-    var storageData = mutableListOf<TodoListData?>()
+    var storageData = ArrayList<TodoListData?>()
+    private var todoAdapter: TodoAdapter? = null
 
     inner class TempViewHolder(private val binding : TemporaryStorageItemBinding) : RecyclerView.ViewHolder(binding.root) {
         private var position : Int? = null
@@ -23,8 +24,18 @@ class TemporaryStorageAdapter : RecyclerView.Adapter<TemporaryStorageAdapter.Tem
             this.position = position
             tempContent.text = storageData.content
 
+            /*if (isRemove) {
+                tempRemove.setOnClickListener {
+                    removeData(this.layoutPosition)
+                }
+            }*/
             tempRemove.setOnClickListener {
                 removeData(this.layoutPosition)
+                todoAdapter = TodoAdapter()
+                todoAdapter!!.isRemove = true
+                //새로운 어댑터 생성이라 데이터가 안넘어옴
+                //println(todoAdapter!!.testData)
+
             }
         }
     }

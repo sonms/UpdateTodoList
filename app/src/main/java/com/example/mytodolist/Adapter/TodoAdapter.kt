@@ -17,7 +17,7 @@ import com.example.mytodolist.model.TodoListData
 import java.util.*
 import kotlin.collections.ArrayList
 
-class TodoAdapter(var data : MutableList<TodoListData?>) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterable {
+class TodoAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterable {
 
     /*자바의 static을 없애고
         아래 동반 객체를 통해 정적 멤버를 정의하여
@@ -36,16 +36,14 @@ class TodoAdapter(var data : MutableList<TodoListData?>) : RecyclerView.Adapter<
     var listData = mutableListOf<TodoListData?>() //post , unfilter
     var temp : TodoListData? = null//넘겨주기용
     var testData : ArrayList<TodoListData?> = ArrayList<TodoListData?>()
-    private var tempAdapter : TemporaryStorageAdapter? = null
+    var isRemove = false //삭제 체크용
     private lateinit var context : Context
     private val checkBoxStatus = SparseBooleanArray()
     //검색
     var listFilter = ListFilter() //postfilter
-    var filterContent = data //data-문제 //mutableListOf<TodoListData?>() //filterpost
+    var filterContent = mutableListOf<TodoListData?>() //filterpost
 
-    init {
-        filterContent.addAll(listData)
-    }
+
 
     inner class TodoViewHolder(var todoItemBinding: TodoItemBinding) : RecyclerView.ViewHolder(todoItemBinding.root) {
         private var position : Int? = null
@@ -95,7 +93,7 @@ class TodoAdapter(var data : MutableList<TodoListData?>) : RecyclerView.Adapter<
                         temp = listData[this.layoutPosition]!!
                         //extraditeData()
                         testData.add(temp)
-                        println(testData)
+                        println(isRemove)
                         removeData(this.layoutPosition)
                     })
 
@@ -180,15 +178,15 @@ class TodoAdapter(var data : MutableList<TodoListData?>) : RecyclerView.Adapter<
 
             if (constraint.toString().lowercase(Locale.getDefault()).trim {it <= ' '}.isEmpty()) {
                 //필터링 작업으로 계산된 모든 값
-                results.values = data
+                results.values = listData
                 //필터링 작업으로 계산된 값의 수
-                results.count = data.size
+                results.count = listData.size
 
                 //filteredList.addAll(listData)
                 return results
             } else {
                 val fs = constraint.toString().lowercase(Locale.getDefault()).trim { it <= ' ' }
-                for (searchText in data) {
+                for (searchText in listData) {
                     if (searchText!!.content.lowercase(Locale.getDefault()).contains(fs)) {
                         filteredList.add(searchText)
                         println(filteredList)

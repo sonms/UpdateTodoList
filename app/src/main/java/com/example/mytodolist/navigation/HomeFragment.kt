@@ -30,14 +30,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
-
-
+private const val RESULT_TEST = 2
 
 class HomeFragment : Fragment() {
     private var param1: String? = null
@@ -334,6 +334,12 @@ class HomeFragment : Fragment() {
                 }
             }
             todoAdapter!!.notifyDataSetChanged()
+        } else if (it.resultCode == RESULT_TEST) {
+            val delete = it.data?.getSerializableExtra("DELETE") as ArrayList<*>
+
+            when(it.data?.getIntExtra("flag",-2)) {
+
+            }
         }
     }
 
@@ -363,8 +369,9 @@ class HomeFragment : Fragment() {
     }
 
     private fun initRecyclerView() {
-        todoAdapter = TodoAdapter(data)
+        todoAdapter = TodoAdapter()
         todoAdapter!!.listData = data
+        todoAdapter!!.filterContent = data
         homeBinding.recyclerView.adapter = todoAdapter
         manager.reverseLayout = true
         manager.stackFromEnd = true
