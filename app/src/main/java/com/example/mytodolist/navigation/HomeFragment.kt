@@ -335,11 +335,16 @@ class HomeFragment : Fragment() {
             }
             todoAdapter!!.notifyDataSetChanged()
         } else if (it.resultCode == RESULT_TEST) {
-            val delete = it.data?.getSerializableExtra("DELETE") as ArrayList<*>
+            val delete = it.data?.getSerializableExtra("DELETE") as ArrayList<TodoListData?>
 
             when(it.data?.getIntExtra("flag",-2)) {
-
+                2 -> {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        todoAdapter!!.testData = delete
+                    }
+                }
             }
+            todoAdapter!!.notifyDataSetChanged()
         }
     }
 
