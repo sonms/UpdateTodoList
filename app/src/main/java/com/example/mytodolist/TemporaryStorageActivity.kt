@@ -66,7 +66,7 @@ class TemporaryStorageActivity : AppCompatActivity() {
             super.onBackPressed()
             return
         }
-        Toast.makeText(this, "한번 더 클릭 시 종료", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "한번 더 클릭 시 홈으로 이동됩니다.", Toast.LENGTH_SHORT).show()
         backPressedTime = System.currentTimeMillis()
     }
 

@@ -15,6 +15,7 @@ import android.widget.ImageSwitcher
 import android.widget.ImageView
 import android.widget.SearchView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SwitchCompat
@@ -67,7 +68,8 @@ class HomeFragment : Fragment() {
     var sharedPref : SharedPref? = null
     //fab 메뉴용
     private var isFabOpen = false
-
+    //뒤로 가기 받아오기
+    private lateinit var callback : OnBackPressedCallback
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,12 +77,6 @@ class HomeFragment : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
-        mainActivity = context as MainActivity
     }
 
     override fun onCreateView(
@@ -202,6 +198,22 @@ class HomeFragment : Fragment() {
         }*/
 
         return homeBinding.root
+    }
+    /*fragment 뒤로 가기 테스트*/
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                Toast.makeText(activity, "한 번 더 누르면 앱이 종료됩니다.",Toast.LENGTH_SHORT).show()
+            }
+        }
+        activity?.onBackPressedDispatcher!!.addCallback(this, callback)
+        mainActivity = context as MainActivity
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callback.remove()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
