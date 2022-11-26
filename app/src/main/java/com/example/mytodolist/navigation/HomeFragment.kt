@@ -70,6 +70,7 @@ class HomeFragment : Fragment() {
     private var isFabOpen = false
     //뒤로 가기 받아오기
     private lateinit var callback : OnBackPressedCallback
+    var backPressedTime : Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -200,17 +201,25 @@ class HomeFragment : Fragment() {
         return homeBinding.root
     }
     /*fragment 뒤로 가기 테스트*/
+    //fragment의 생명 주기 중 첫 부분
+    //Fragement 를 Activity 에 attach 할 때 호출
     override fun onAttach(context: Context) {
         super.onAttach(context)
         callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+                if (System.currentTimeMillis() - backPressedTime < 2500) {
+                    activity?.finish()
+                    return
+                }
                 Toast.makeText(activity, "한 번 더 누르면 앱이 종료됩니다.",Toast.LENGTH_SHORT).show()
+                backPressedTime = System.currentTimeMillis()
             }
         }
         activity?.onBackPressedDispatcher!!.addCallback(this, callback)
         mainActivity = context as MainActivity
     }
-
+    //끝 부분
+    //Replace 함수나 backward 로 Fragment 를 삭제하는 경우 실행되는 함수
     override fun onDetach() {
         super.onDetach()
         callback.remove()

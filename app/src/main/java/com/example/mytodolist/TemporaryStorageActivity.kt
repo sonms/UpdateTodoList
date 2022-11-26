@@ -3,6 +3,7 @@ package com.example.mytodolist
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -29,6 +30,8 @@ class TemporaryStorageActivity : AppCompatActivity() {
 
 
         initStorageRecyclerView()
+        //뒤로 가기 버튼(setDisplayHomeAsUpEnabled)을 만드는 코드
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
         //받는거 하나 보여주는 거 하나 따로..?->ArrayList 로 해결
         if (type.equals("delete")) {
@@ -55,7 +58,23 @@ class TemporaryStorageActivity : AppCompatActivity() {
         }
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            android.R.id.home -> {
+                val intent = Intent().apply {
+                    putExtra("DELETE", temporaryStorageAdapter!!.storageData)
+                    putExtra("flag", 2)
+                }
+                setResult(RESULT_TEST, intent)
+                finish()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     override fun onBackPressed() {
+        //2.5초이내에 한 번 더 뒤로가기 클릭 시
         if (System.currentTimeMillis() - backPressedTime < 2500) {
             val intent = Intent().apply {
                 putExtra("DELETE", temporaryStorageAdapter!!.storageData)
