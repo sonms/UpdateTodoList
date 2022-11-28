@@ -5,10 +5,49 @@
     android:layout_height="match_parent"
     tools:context=".navigation.AccountFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+
     <TextView
+        android:id="@+id/input_email"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="50dp"
+        />
+
+    <TextView
+        android:id="@+id/input_password"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:inputType="textPassword"
+        android:layout_marginTop="50dp"
+        />
+
+    <TextView
+        android:id="@+id/theme"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="150dp"
+        android:layout_marginStart="28dp"
+        android:text="테마"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        />
+
+    <RelativeLayout
+        android:layout_marginTop="160dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="70dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="20dp"
+            android:gravity="center"
+            android:text="다크 테마" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="340dp" />
+    </RelativeLayout>
 
 </FrameLayout>
