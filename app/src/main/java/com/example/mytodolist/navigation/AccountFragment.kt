@@ -1,11 +1,15 @@
 package com.example.mytodolist.navigation
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SwitchCompat
+import com.example.mytodolist.MainActivity
 import com.example.mytodolist.R
+import com.example.mytodolist.SharedPref
 import com.example.mytodolist.databinding.FragmentAccountBinding
 
 // TODO: Rename parameter arguments, choose names that match
@@ -22,8 +26,11 @@ class AccountFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    private lateinit var accountBinding: FragmentAccountBinding
 
+    private lateinit var accountBinding: FragmentAccountBinding
+    //상태유지
+    var sharedPref : SharedPref? = null
+    private var switch : SwitchCompat? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -38,9 +45,16 @@ class AccountFragment : Fragment() {
     ): View? {
         accountBinding = FragmentAccountBinding.inflate(inflater, container, false)
 
+        sharedPref = this.context?.let { SharedPref(it) }
+        if (sharedPref!!.loadNightModeState()) {
+            context?.setTheme(R.style.darktheme)
+        } else {
+            context?.setTheme(R.style.AppTheme)
+        }
+
         val email = activity?.intent!!.getStringExtra("email")
         val password = activity?.intent!!.getStringExtra("password")
-
+        switch = accountBinding.themeSwitch
 
         accountBinding.inputEmail.text = email
         accountBinding.inputPassword.text = password
@@ -49,7 +63,29 @@ class AccountFragment : Fragment() {
             println("click")
         }
 
+
+        if (sharedPref!!.loadNightModeState()) {
+            switch!!.isChecked = true
+        }
+
+        switch!!.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                sharedPref!!.setNightModeState(true)
+                restartApp()
+            } else {
+                sharedPref!!.setNightModeState(false)
+                restartApp()
+            }
+        }
+
         return accountBinding.root
+    }
+
+    //테마 변경 시 적용을 위한 재시작
+    fun restartApp() {
+        val intent = Intent(context?.applicationContext, MainActivity::class.java)
+        activity?.startActivity(intent)
+        activity?.finish()
     }
 
     companion object {

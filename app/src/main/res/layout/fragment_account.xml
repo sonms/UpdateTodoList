@@ -45,6 +45,7 @@
             android:text="다크 테마" />
 
         <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/theme_switch"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginStart="340dp" />
