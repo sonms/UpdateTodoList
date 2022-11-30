@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
+    <PreferenceCategory
+        android:title="닉네임"
+        android:layout="@layout/preferences_style"
+        >
+        <EditTextPreference
+            android:key="nicknameKey"
+            android:title="닉네임"
+            android:summary="닉네임을 설정합니다"
+            />
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        android:title="테마"
+        android:layout="@layout/preferences_style"
+        >
+        <!--key = id-->
+        <SwitchPreference
+            android:key="themeKey"
+            android:defaultValue="false"
+            android:title="다크 테마"
+            android:summaryOff="다크 테마로 변경됩니다(앱이 재시작됩니다)"
+            android:summaryOn="기본 테마로 변경됩니다(앱이 재시작됩니다)"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="알림 설정"
+        android:layout="@layout/preferences_style"
+        >
+        <CheckBoxPreference
+            android:key="noticeKey"
+            android:title="알림"
+            android:summary="알림을 받으려면 체크해주세요"
+            />
+    </PreferenceCategory>
+
+</PreferenceScreen>
