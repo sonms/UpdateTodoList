@@ -3,19 +3,20 @@ package com.example.mytodolist.navigation
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SwitchCompat
+import androidx.fragment.app.Fragment
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import androidx.preference.SwitchPreference
+import androidx.preference.SwitchPreferenceCompat
 import com.example.mytodolist.MainActivity
 import com.example.mytodolist.R
 import com.example.mytodolist.SharedPref
 import com.example.mytodolist.databinding.FragmentAccountBinding
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -37,14 +38,14 @@ class AccountFragment : PreferenceFragmentCompat() {
     var sharedPref : SharedPref? = null
     private var switch : SwitchCompat? = null
     var pref : SharedPreferences? = null
-    var themePreference : SwitchPreference? = null
+    var themePreference : SwitchPreferenceCompat? = null
     var nicknamePreference : Preference? = null
     var noticePreference : Preference? = null
 
-    /*override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //setPreferencesFromResource(R.xml.preference, rootKey)
-        addPreferencesFromResource(R.xml.preference)
+        //addPreferencesFromResource(R.xml.preference)
         /*if (rootKey == null) {
 
             themePreference = findPreference("themeKey")
@@ -53,13 +54,18 @@ class AccountFragment : PreferenceFragmentCompat() {
 
             pref = activity?.let { PreferenceManager.getDefaultSharedPreferences(it)}
         }*/
-        themePreference = findPreference("themeKey")
-        nicknamePreference = findPreference("nicknameKey")
-        noticePreference = findPreference("noticeKey")
+        //themePreference = findPreference("themeKey")
+        //nicknamePreference = findPreference("nicknameKey")
+       // noticePreference = findPreference("noticeKey")
 
-        pref = activity?.let { PreferenceManager.getDefaultSharedPreferences(it)}
-
-    }*/ //oncreate
+        //pref = activity?.let { PreferenceManager.getDefaultSharedPreferences(it)}
+        /*sharedPref = this.context?.let { SharedPref(it) }
+        if (sharedPref!!.loadNightModeState()) {
+            context?.setTheme(R.style.darktheme)
+        } else {
+            context?.setTheme(R.style.AppTheme)
+        }*/
+    }
     
     /*override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -112,21 +118,39 @@ class AccountFragment : PreferenceFragmentCompat() {
             context?.setTheme(R.style.AppTheme)
         }
 
-
         setPreferencesFromResource(R.xml.preference, rootKey)
 
-        if (sharedPref!!.loadNightModeState()) {
+        themePreference = findPreference("themeKey")
+        /*if (sharedPref!!.loadNightModeState()) {
             themePreference!!.isChecked = true
+        }*/
+        themePreference!!.setOnPreferenceChangeListener { preference, newValue ->
+            var isChecked = false
+            if (newValue as Boolean) {
+                isChecked = newValue as Boolean
+            }
+            if (isChecked) {
+                preferenceManager.sharedPreferences.edit().putBoolean("themeKey", true).apply()
+                sharedPref!!.setNightModeState(true)
+                restartApp()
+            } else {
+                preferenceManager.sharedPreferences.edit().putBoolean("themeKey", false).apply()
+                sharedPref!!.setNightModeState(false)
+                restartApp()
+            }
+            return@setOnPreferenceChangeListener true
         }
+
+
+        nicknamePreference = findPreference("nicknameKey")
+        noticePreference = findPreference("noticeKey")
+
         //addPreferencesFromResource(R.xml.preference)
         if (rootKey == null) {
-
-            themePreference = findPreference("themeKey")
-            nicknamePreference = findPreference("nicknameKey")
-            noticePreference = findPreference("noticeKey")
-
             pref = activity?.let { PreferenceManager.getDefaultSharedPreferences(it)}
         }
+
+        //themePreference!!.setOnPreferenceChangeListener(prefListener)
     }
     
     val prefListener =
@@ -135,23 +159,35 @@ class AccountFragment : PreferenceFragmentCompat() {
         when (key) {
             "themeKey" -> {
 
-
-
-                themePreference!!.setOnPreferenceChangeListener { preference, newValue ->
+                /*themePreference!!.setOnPreferenceChangeListener { preference, newValue ->
                     if (themePreference!!.isChecked) {
                         sharedPref!!.setNightModeState(true)
                         println(themePreference!!.isChecked)
                         restartApp()
-                        return@setOnPreferenceChangeListener true
                     } else {
                         sharedPref!!.setNightModeState(false)
                         restartApp()
-                        return@setOnPreferenceChangeListener false
                     }
-                }
+                    return@setOnPreferenceChangeListener true
+                }*/
+
+                /*themePreference!!.setOnPreferenceClickListener {
+                    if (key == "themeKey") {
+                        if (themePreference!!.isChecked) {
+                            sharedPref!!.setNightModeState(true)
+                            println(themePreference!!.isChecked)
+                            restartApp()
+                        } else {
+                            sharedPref!!.setNightModeState(false)
+                            restartApp()
+                        }
+                    }
+                    return@setOnPreferenceClickListener true
+                }*/
             }
         }
     }
+
     //테마 변경 시 적용을 위한 재시작
     fun restartApp() {
         val intent = Intent(context?.applicationContext, MainActivity::class.java)

@@ -20,8 +20,8 @@
         android:layout="@layout/preferences_style"
         >
         <!--key = id-->
-        <SwitchPreference
-            android:key="themeKey"
+        <SwitchPreferenceCompat
+            app:key="themeKey"
             android:defaultValue="false"
             android:title="다크 테마"
             android:summaryOff="다크 테마로 변경됩니다(앱이 재시작됩니다)"
