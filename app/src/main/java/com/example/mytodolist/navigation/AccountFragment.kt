@@ -4,9 +4,11 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
@@ -41,8 +43,11 @@ class AccountFragment : PreferenceFragmentCompat() {
     var themePreference : SwitchPreferenceCompat? = null
     var nicknamePreference : Preference? = null
     var noticePreference : Preference? = null
+    var nickname : String? = null
+    var actionbar : android.app.ActionBar? = null
+    var nicknamePref : SharedPref? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    /*override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //setPreferencesFromResource(R.xml.preference, rootKey)
         //addPreferencesFromResource(R.xml.preference)
@@ -65,7 +70,7 @@ class AccountFragment : PreferenceFragmentCompat() {
         } else {
             context?.setTheme(R.style.AppTheme)
         }*/
-    }
+    }*/
     
     /*override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -143,11 +148,18 @@ class AccountFragment : PreferenceFragmentCompat() {
 
 
         nicknamePreference = findPreference("nicknameKey")
+
+        //actionbar!!.title = "test"
         noticePreference = findPreference("noticeKey")
 
         //addPreferencesFromResource(R.xml.preference)
         if (rootKey == null) {
             pref = activity?.let { PreferenceManager.getDefaultSharedPreferences(it)}
+        }
+        nicknamePref = this.context?.let { SharedPref(it) }
+        if (pref!!.getString("nicknameKey", "") != "") {
+            nickname = pref!!.getString("nicknameKey","")
+            nicknamePreference?.summary = "현재 설정된 닉네임은 $nickname 입니다"
         }
 
         //themePreference!!.setOnPreferenceChangeListener(prefListener)
@@ -157,33 +169,13 @@ class AccountFragment : PreferenceFragmentCompat() {
         SharedPreferences
             .OnSharedPreferenceChangeListener { sharedPreferences:SharedPreferences?, key:String? ->
         when (key) {
-            "themeKey" -> {
-
-                /*themePreference!!.setOnPreferenceChangeListener { preference, newValue ->
-                    if (themePreference!!.isChecked) {
-                        sharedPref!!.setNightModeState(true)
-                        println(themePreference!!.isChecked)
-                        restartApp()
-                    } else {
-                        sharedPref!!.setNightModeState(false)
-                        restartApp()
-                    }
-                    return@setOnPreferenceChangeListener true
-                }*/
-
-                /*themePreference!!.setOnPreferenceClickListener {
-                    if (key == "themeKey") {
-                        if (themePreference!!.isChecked) {
-                            sharedPref!!.setNightModeState(true)
-                            println(themePreference!!.isChecked)
-                            restartApp()
-                        } else {
-                            sharedPref!!.setNightModeState(false)
-                            restartApp()
-                        }
-                    }
-                    return@setOnPreferenceClickListener true
-                }*/
+            "nicknameKey" -> {
+                nickname = pref!!.getString("nicknameKey","")
+                //nickname저장
+                val pref = PreferenceManager.getDefaultSharedPreferences(activity)
+                val editor = pref.edit()
+                editor.putString("nicknameKey", nickname).apply()
+                nicknamePreference?.summary = "현재 설정된 닉네임은 $nickname 입니다"
             }
         }
     }
@@ -198,12 +190,20 @@ class AccountFragment : PreferenceFragmentCompat() {
     // 리스너 등록
     override fun onResume() {
         super.onResume()
+        val activity : FragmentActivity? = activity
+        if (activity != null) {
+            (activity as MainActivity).setActionBarTitle("$nickname 의 TodoList")
+        }
         pref!!.registerOnSharedPreferenceChangeListener(prefListener)
     }
 
     // 리스너 해제
     override fun onPause() {
         super.onPause()
+        val activity : FragmentActivity? = activity
+        if (activity != null) {
+            (activity as MainActivity).setActionBarTitle("$nickname 의 TodoList")
+        }
         pref!!.unregisterOnSharedPreferenceChangeListener(prefListener)
     }
 

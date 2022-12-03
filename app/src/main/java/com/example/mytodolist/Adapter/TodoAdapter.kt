@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
+import com.example.mytodolist.R
 import com.example.mytodolist.databinding.RvLoadingBinding
 import com.example.mytodolist.databinding.TodoItemBinding
 import com.example.mytodolist.model.TodoListData
@@ -93,7 +94,6 @@ class TodoAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
                         temp = listData[this.layoutPosition]!!
                         //extraditeData()
                         testData.add(temp)
-                        println(isRemove)
                         removeData(this.layoutPosition)
                     })
 

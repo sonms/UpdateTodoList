@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:textAllCaps="true"
         android:text="test"
-        android:layout_marginStart="71.5dp"
+        android:layout_marginStart="70.8dp"
         android:layout_marginTop="20dp"
         android:textColor="@color/background"
         android:textSize="16sp"

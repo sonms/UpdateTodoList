@@ -2,6 +2,7 @@ package com.example.mytodolist
 
 import android.app.SearchManager
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -9,12 +10,15 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.Toast
 import android.widget.Toolbar
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isEmpty
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
@@ -33,7 +37,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mBinding : ActivityMainBinding
     private lateinit var main_content : LinearLayout //xml의 content를 담는 layout
     private lateinit var bottom_navigationview : BottomNavigationView
-    private lateinit var toolbar : androidx.appcompat.widget.Toolbar
     /*private var homeFragment : HomeFragment? = null
     private var blankFragment: BlankFragment? = null
     private var accountFragment: AccountFragment? = null*/
@@ -41,7 +44,7 @@ class MainActivity : AppCompatActivity() {
     private val TAG_CALENDAR = "calendar_fragment"
     private val TAG_ACCOUNT = "account_fragment"
     private var sharedPref : SharedPref? = null
-
+    var nickname : String? = null
     override fun onCreate(savedInstanceState: Bundle?) {
 
         sharedPref = SharedPref(this)
@@ -51,11 +54,18 @@ class MainActivity : AppCompatActivity() {
             setTheme(R.style.AppTheme)
         }
 
+        val pref = PreferenceManager.getDefaultSharedPreferences(this)
+        if (pref.getString("nicknameKey","") != null) {
+            nickname = pref.getString("nicknameKey", "")
+            setActionBarTitle(nickname!!)
+        } else {
+            setActionBarTitle("TodoList")
+        }
+
 
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         val view = mBinding.root
         super.onCreate(savedInstanceState)
-
 
 
         setContentView(view)
@@ -87,7 +97,6 @@ class MainActivity : AppCompatActivity() {
 
                     }
                     setFragment(TAG_HOME, HomeFragment())
-
                 }
                 R.id.calendar -> setFragment(TAG_CALENDAR, CalendarFragment())
                 R.id.account -> setFragment(TAG_ACCOUNT, AccountFragment())
@@ -200,6 +209,14 @@ class MainActivity : AppCompatActivity() {
             Runnable { /*manager!!.scrollToPositionWithOffset(last,0)*/ },
             200
         )
+    }
+
+    fun setActionBarTitle (title : String) {
+        //val test =
+        val actionBar : ActionBar = supportActionBar!!
+        if (actionBar != null) {
+            actionBar.title = title
+        }
     }
 
     fun changeFragment(fragment : Fragment) {

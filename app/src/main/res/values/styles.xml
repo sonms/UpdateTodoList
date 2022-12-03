@@ -14,7 +14,7 @@
         <item name="buttoncolor">#2196F3</item>
         <item name="bottomnavibackground">#FFFFFF</item>
         <item name="floatbutton">#4E5DB3</item>
-        <item name="modeselect">#FCFCFC</item>
+        <item name="modeselect">#000000</item>
     </style>
 
 
@@ -32,6 +32,10 @@
         <item name="bottomnavibackground">#212121</item>
         <item name="floatbutton">#1A1A1B</item>
         <item name="modeselect">#FCFCFC</item>
+    </style>
+
+    <style name="dialogStyle" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:colorAccent">@color/colorAccent</item>
     </style>
 
 </resources>

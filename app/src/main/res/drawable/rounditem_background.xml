@@ -4,7 +4,7 @@
 
     <stroke
         android:width="3dp"
-        android:color="@color/black"
+        android:color="?attr/modeselect"
         />
     <solid
         android:color="?attr/backgroundcolor1"
