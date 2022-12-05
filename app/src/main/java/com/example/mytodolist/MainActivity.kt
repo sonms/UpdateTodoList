@@ -45,6 +45,7 @@ class MainActivity : AppCompatActivity() {
     private val TAG_ACCOUNT = "account_fragment"
     private var sharedPref : SharedPref? = null
     var nickname : String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         sharedPref = SharedPref(this)
@@ -57,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
         if (pref.getString("nicknameKey","") != null) {
             nickname = pref.getString("nicknameKey", "")
-            setActionBarTitle(nickname!!)
+            setActionBarTitle("$nickname 의 TodoList")
         } else {
             setActionBarTitle("TodoList")
         }

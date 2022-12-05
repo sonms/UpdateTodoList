@@ -156,9 +156,15 @@ class AccountFragment : PreferenceFragmentCompat() {
         if (rootKey == null) {
             pref = activity?.let { PreferenceManager.getDefaultSharedPreferences(it)}
         }
+
         nicknamePref = this.context?.let { SharedPref(it) }
         if (pref!!.getString("nicknameKey", "") != "") {
             nickname = pref!!.getString("nicknameKey","")
+            //nickname저장
+            val pref = PreferenceManager.getDefaultSharedPreferences(activity)
+            val editor = pref.edit()
+            editor.putString("nicknameKey", nickname).apply()
+            //nickname = pref!!.getString("nicknameKey","")
             nicknamePreference?.summary = "현재 설정된 닉네임은 $nickname 입니다"
         }
 
@@ -175,6 +181,12 @@ class AccountFragment : PreferenceFragmentCompat() {
                 val pref = PreferenceManager.getDefaultSharedPreferences(activity)
                 val editor = pref.edit()
                 editor.putString("nicknameKey", nickname).apply()
+
+                //닉네임으로 바로 세팅
+                val activity : FragmentActivity? = activity
+                if (activity != null) {
+                    (activity as MainActivity).setActionBarTitle("$nickname 의 TodoList")
+                }
                 nicknamePreference?.summary = "현재 설정된 닉네임은 $nickname 입니다"
             }
         }
