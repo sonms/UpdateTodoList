@@ -17,6 +17,7 @@ class ScheduleAdapter : RecyclerView.Adapter<ScheduleAdapter.ScheduleViewHolder>
     private lateinit var binding : ViewitemScheduleBinding
     //page마다 값이 달라져야하니 , map으로 해서 key값으로 page, value로 tv1~4개가 맞는듯?
     var scheduleData = mutableListOf<ScheduleData?>()
+    var testScheduleData = HashMap<String, ArrayList<ScheduleData?>>()
     private lateinit var context : Context
 
     inner class ScheduleViewHolder(private val binding : ViewitemScheduleBinding ) : RecyclerView.ViewHolder(binding.root) {

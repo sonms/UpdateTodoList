@@ -6,8 +6,6 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.LayoutInflater
@@ -19,10 +17,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.viewpager2.widget.ViewPager2
 import com.example.mytodolist.Adapter.ScheduleAdapter
-import com.example.mytodolist.Adapter.TodoAdapter
-import com.example.mytodolist.EditActivity
 import com.example.mytodolist.MainActivity
 import com.example.mytodolist.ScheduleEditActivity
 import com.example.mytodolist.databinding.FragmentCalendarBinding
@@ -34,17 +29,12 @@ import com.prolificinteractive.materialcalendarview.DayViewFacade
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener
 import com.prolificinteractive.materialcalendarview.spans.DotSpan
-import kotlinx.android.synthetic.main.fragment_calendar.view.*
-import kotlinx.android.synthetic.main.fragment_home.view.*
-import kotlinx.android.synthetic.main.item_schedule.*
-import kotlinx.android.synthetic.main.item_schedule.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.Month
-import java.time.Year
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -85,11 +75,13 @@ class CalendarFragment : Fragment() {
     private lateinit var calendarAdapter : CalendarAdapter
     private var monthDate : ArrayList<String> = ArrayList()*/
     private var addScheduleData : MutableList<ScheduleData?> = mutableListOf()
+    private var testScheduleData2 : HashMap<String, ArrayList<ScheduleData?>> = HashMap()
+    private var testScheduleData3 : HashMap<String, ArrayList<ScheduleData?>> = HashMap()
     private var targetDay : String = ""
     private var dot_y : Int = 0
     private var dot_m : Int = 0
     private var dot_d : Int = 0
-
+    private var defaultData : ArrayList<ScheduleData?> = ArrayList()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -105,6 +97,7 @@ class CalendarFragment : Fragment() {
     ): View? {
         calendarBinding = FragmentCalendarBinding.inflate(inflater, container, false)
 
+        defaultData.add(ScheduleData(0,"Defalut","Time"))
         //마지막 달은 현재 달의 3을 더한 것 만큼 ex 1월->6?5?월까지만 보여줌
         endMonthCalendar.set(Calendar.MONTH, currentMonth+5)
 
@@ -145,7 +138,24 @@ class CalendarFragment : Fragment() {
 
 
             //데이터 추가
-            //추가..
+
+
+            /*if (testScheduleData2.size > 0) {
+                testScheduleData3[targetDay] = testScheduleData2[targetDay]!!
+            }*/
+            if (testScheduleData3.containsKey(targetDay)) {
+                testScheduleData3[targetDay] = testScheduleData2[targetDay]!!
+                println(testScheduleData3)
+                //scheduleAdapter!!.notifyDataSetChanged()
+            } else {
+                //최초로 1회만 targetday 디폴트 세팅
+                //조건이 참인 경우만 반복 실행이니 조건을 false로
+                do {
+                    testScheduleData3.put(targetDay, defaultData)
+                } while (testScheduleData3.containsKey("false"))
+                println(testScheduleData3)
+            }
+
         })
 
         calendarBinding.scheduleFabAdd.setOnClickListener {
@@ -178,7 +188,8 @@ class CalendarFragment : Fragment() {
 
     private fun initScheduleRecyclerview() {
         scheduleAdapter = ScheduleAdapter()
-        scheduleAdapter!!.scheduleData = addScheduleData
+        //scheduleAdapter!!.scheduleData = addScheduleData
+        scheduleAdapter!!.testScheduleData = testScheduleData3
         calendarBinding.shceduleRecyclerview.adapter = scheduleAdapter
         //calendarBinding.scheduleViewpager2.orientation = ViewPager2.ORIENTATION_HORIZONTAL
         calendarBinding.shceduleRecyclerview.layoutManager = manager
@@ -209,7 +220,7 @@ class CalendarFragment : Fragment() {
                 3 -> {
                     CoroutineScope(Dispatchers.IO).launch {
                         addScheduleData.add(schedule)
-                        println(schedule)
+                        testScheduleData2[targetDay] = addScheduleData as ArrayList<ScheduleData?>
                     }
                     Toast.makeText(activity, "추가되었습니다.", Toast.LENGTH_SHORT).show()
                 }
