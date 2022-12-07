@@ -6,18 +6,13 @@ import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.*
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.ImageSwitcher
-import android.widget.ImageView
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -26,11 +21,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mytodolist.*
 import com.example.mytodolist.Adapter.TodoAdapter
 import com.example.mytodolist.databinding.FragmentHomeBinding
+import com.example.mytodolist.model.MyResponse
 import com.example.mytodolist.model.TodoListData
+import com.example.mytodolist.model.TodoListResponseData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.*
+import okhttp3.OkHttpClient
+import retrofit2.*
+import retrofit2.converter.gson.GsonConverterFactory
 import kotlin.collections.ArrayList
 
 
@@ -71,6 +70,11 @@ class HomeFragment : Fragment() {
     //뒤로 가기 받아오기
     private lateinit var callback : OnBackPressedCallback
     var backPressedTime : Long = 0
+    //데이터
+    val retrofit = Retrofit.Builder().baseUrl("https://waffle.gq")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+    val service = retrofit.create(TodoInterface::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -118,6 +122,7 @@ class HomeFragment : Fragment() {
                 putExtra("type", "delete")
                 putExtra("item", todoAdapter!!.testData)
             }
+
             requestActivity.launch(intent)
         }
 
@@ -136,13 +141,14 @@ class HomeFragment : Fragment() {
         reflashBtn.setOnClickListener {
 
             //초기화
-            data.clear()
+            /*data.clear()
 
-            todoAdapter!!.listData = dataSet()
+            //todoAdapter!!.listData = dataSet()
 
             todoAdapter!!.notifyDataSetChanged()
 
-            homeBinding.recyclerView.startLayoutAnimation()
+            homeBinding.recyclerView.startLayoutAnimation()*/
+            dataSet()
         }
 
 
@@ -345,6 +351,25 @@ class HomeFragment : Fragment() {
                     CoroutineScope(Dispatchers.IO).launch {
                         data.add(todo)
                     }
+
+                    service.addData(todo).enqueue(object : Callback<MyResponse> {
+                        override fun onResponse(
+                            call: Call<MyResponse>,
+                            response: Response<MyResponse?>
+                        ) {
+                            val tdl : TodoListData = response.body()!!.todoData
+
+                            if (response.isSuccessful) {
+                                println("성공 $tdl")
+                            } else {
+                                println("fail")
+                            }
+                        }
+
+                        override fun onFailure(call: Call<MyResponse>, t: Throwable) {
+                            println("실패")
+                        }
+                    })
                     Toast.makeText(activity, "추가되었습니다.", Toast.LENGTH_SHORT).show()
                 }
                 1 -> {
@@ -370,19 +395,33 @@ class HomeFragment : Fragment() {
     }
 
 
-    //나중에 데이터 받아오는 곳
-    private fun dataSet(): MutableList<TodoListData?> {
-        data = mutableListOf(
-            TodoListData(1,"test1",false),
-            TodoListData(2,"test2",false),
-            TodoListData(3,"test3",false),
-            TodoListData(4,"test4",false),
-            TodoListData(5,"test5",false),
-            TodoListData(6,"test6",false),
-            TodoListData(7,"test7",false),
-            TodoListData(8,"test8",false)
-        )
-        return data
+    //데이터 받아오는 곳
+    private fun dataSet() {
+        val retrofit = Retrofit.Builder().baseUrl("https://waffle.gq")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val service = retrofit.create(TodoInterface::class.java)
+
+        service.getDataByPage(0, null).enqueue(object : Callback<MyResponse> {
+            override fun onResponse(call: Call<MyResponse>, response: Response<MyResponse?>) {
+                if (response.isSuccessful) {
+                    //통신 성공
+                    var result : List<TodoListData> = response.body()!!.data.todos
+                    val isSu = response.body()!!.status
+                    println("$isSu")
+                    println("$result")
+                } else {
+                    //통신 실패
+                    println("Fail")
+                }
+            }
+
+            override fun onFailure(call: Call<MyResponse>, t: Throwable) {
+                // 통신 실패 (인터넷 끊킴, 예외 발생 등 시스템적인 이유)
+                println("Error" + t.message.toString())
+            }
+        })
     }
 
     private fun initSwipeRefrech() {
@@ -493,7 +532,7 @@ class HomeFragment : Fragment() {
             println(data)
         }*/
         //성공//
-        val handler = Handler(Looper.getMainLooper())
+        /*val handler = Handler(Looper.getMainLooper())
         handler.postDelayed(java.lang.Runnable {
             data.removeAt(data.size - 1)
             val scrollPosition: Int = data.size
@@ -507,7 +546,7 @@ class HomeFragment : Fragment() {
             }
             todoAdapter!!.notifyDataSetChanged()
             isLoading = false
-        }, 2000)
+        }, 2000)*/
     }
 
 

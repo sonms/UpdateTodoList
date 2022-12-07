@@ -89,19 +89,6 @@ class TemporaryStorageActivity : AppCompatActivity() {
         backPressedTime = System.currentTimeMillis()
     }
 
-    private fun dataSet(): MutableList<TodoListData?> {
-        tempStorage = arrayListOf(
-            TodoListData(1,"test1",false),
-            TodoListData(2,"test2",false),
-            TodoListData(3,"test3",false),
-            TodoListData(4,"test4",false),
-            TodoListData(5,"test5",false),
-            TodoListData(6,"test6",false),
-            TodoListData(7,"test7",false),
-            TodoListData(8,"test8",false)
-        )
-        return tempStorage
-    }
 
     private fun initStorageRecyclerView() {
         temporaryStorageAdapter = TemporaryStorageAdapter()

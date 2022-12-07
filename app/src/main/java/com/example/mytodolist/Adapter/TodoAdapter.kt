@@ -11,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mytodolist.R
 import com.example.mytodolist.databinding.RvLoadingBinding
 import com.example.mytodolist.databinding.TodoItemBinding
 import com.example.mytodolist.model.TodoListData
@@ -74,11 +73,11 @@ class TodoAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
                 notifyItemChanged(adapterPosition)
             }*/
             checkselected.setOnClickListener {
-                itemCheckBoxClickListener.onClick(it,layoutPosition,listData[layoutPosition]!!.id)
+                itemCheckBoxClickListener.onClick(it,layoutPosition,listData[layoutPosition]!!.position)
             }
 
             todoItemBinding.root.setOnClickListener {
-                itemClickListener.onClick(it,layoutPosition,listData[layoutPosition]!!.id)
+                itemClickListener.onClick(it,layoutPosition,listData[layoutPosition]!!.position)
             }
 
             todoItemBinding.removeIv.setOnClickListener {
@@ -187,7 +186,7 @@ class TodoAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
             } else {
                 val fs = constraint.toString().lowercase(Locale.getDefault()).trim { it <= ' ' }
                 for (searchText in listData) {
-                    if (searchText!!.content.lowercase(Locale.getDefault()).contains(fs)) {
+                    if (searchText!!.content!!.lowercase(Locale.getDefault()).contains(fs)) {
                         filteredList.add(searchText)
                         println(filteredList)
                         println(filterContent)
