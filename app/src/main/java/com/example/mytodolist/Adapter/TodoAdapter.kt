@@ -11,9 +11,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
+import com.example.mytodolist.TodoInterface
 import com.example.mytodolist.databinding.RvLoadingBinding
 import com.example.mytodolist.databinding.TodoItemBinding
+import com.example.mytodolist.model.MyResponse
 import com.example.mytodolist.model.TodoListData
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -42,7 +49,13 @@ class TodoAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
     //검색
     var listFilter = ListFilter() //postfilter
     var filterContent = mutableListOf<TodoListData?>() //filterpost
-
+    //데이터 연결
+    val retrofit = Retrofit.Builder().baseUrl("https://waffle.gq")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+    val service = retrofit.create(TodoInterface::class.java)
+    var deleteServerData : String? = null
+    var tempServerData = mutableListOf<TodoListData?>()
 
 
     inner class TodoViewHolder(var todoItemBinding: TodoItemBinding) : RecyclerView.ViewHolder(todoItemBinding.root) {
@@ -83,7 +96,7 @@ class TodoAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
             todoItemBinding.removeIv.setOnClickListener {
                 val builder : AlertDialog.Builder = AlertDialog.Builder(context)
                 val ad : AlertDialog = builder.create()
-                val deleteData = listData[this.layoutPosition]!!.content
+                var deleteData = listData[this.layoutPosition]!!.content
                 builder.setTitle(deleteData)
                 builder.setMessage("정말로 삭제하시겠습니까?")
 
@@ -93,7 +106,10 @@ class TodoAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
                         temp = listData[this.layoutPosition]!!
                         //extraditeData()
                         testData.add(temp)
+                        deleteServerData = tempServerData[this.layoutPosition]!!.api_id
                         removeData(this.layoutPosition)
+                        removeServerData(deleteServerData!!)
+                        println(deleteServerData)
                     })
 
                 builder.setPositiveButton("아니오",
@@ -216,18 +232,25 @@ class TodoAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
         notifyItemRemoved(position)
     }
 
-    //삭제 데이터 넘겨주기
-    fun extraditeData() {
-        val tempdata = temp
+    fun removeServerData(server_id : String) {
+        service.deleteData(server_id).enqueue(object : Callback<MyResponse> {
+            override fun onResponse(call: Call<MyResponse>, response: Response<MyResponse?>) {
+                if (response.isSuccessful) {
+                    //통신 성공
+                    println("Success")
+                } else {
+                    //통신 실패
+                    println("Fail")
+                }
+            }
 
-        /*val intent = Intent(context, TemporaryStorageActivity::class.java).apply {
-            putExtra("item", tempdata)
-        }*/
-        /*tempAdapter = TemporaryStorageAdapter()
-        tempAdapter!!.storageData.add(tempdata)
-        //println(temp)
-        tempAdapter!!.notifyDataSetChanged()*/
+            override fun onFailure(call: Call<MyResponse>, t: Throwable) {
+                // 통신 실패 (인터넷 끊킴, 예외 발생 등 시스템적인 이유)
+                println("Error" + t.message.toString())
+            }
+        })
     }
+
 
     fun swapData(beforePos : Int, afterPos : Int) {
         Collections.swap(listData, beforePos, afterPos)

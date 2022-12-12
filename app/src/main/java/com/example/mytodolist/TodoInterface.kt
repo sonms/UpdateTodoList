@@ -17,7 +17,9 @@ interface TodoInterface {
     @POST("todo")
     fun addData(@Body todoListData: TodoListData) : Call<MyResponse>
 
-    @POST("todo")
-    fun updateData(@Body todoListData: TodoListData) : Call<MyResponse>
+    @PUT("todo/{id}")
+    fun updateData(@Body todoListData: TodoListData, @Path("id") todoId : String) : Call<MyResponse>
 
+    @DELETE("todo/{id}")
+    fun deleteData(@Path("id") todoId : String) : Call<MyResponse>
 }

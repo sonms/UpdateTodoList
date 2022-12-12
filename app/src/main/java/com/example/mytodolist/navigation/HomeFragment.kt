@@ -6,6 +6,8 @@ import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.*
 import android.widget.Button
 import android.widget.ImageSwitcher
@@ -23,14 +25,11 @@ import com.example.mytodolist.Adapter.TodoAdapter
 import com.example.mytodolist.databinding.FragmentHomeBinding
 import com.example.mytodolist.model.MyResponse
 import com.example.mytodolist.model.TodoListData
-import com.example.mytodolist.model.TodoListResponseData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
-import kotlin.collections.ArrayList
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -52,9 +51,10 @@ class HomeFragment : Fragment() {
     private var isLoading = false
     //모든 item
     private var data : MutableList<TodoListData?> = mutableListOf()
-    //삭제 후 임시저장 item 용
+    //서버 데이터 임시저장
     var tempData : TodoListData? = null
-    private var tempDataList : MutableList<TodoListData?> = mutableListOf()
+    private lateinit var tempDataList : List<TodoListData> //reponse에서 받은 서버 데이터
+    private var tempDataList2 : MutableList<TodoListData?> = mutableListOf() //tempdatalist에 데이터를 다시 저장
     //검색용
     private var searchData : MutableList<TodoListData?> = mutableListOf()
     lateinit var filterString : ArrayList<String>
@@ -75,6 +75,10 @@ class HomeFragment : Fragment() {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
     val service = retrofit.create(TodoInterface::class.java)
+    //데이터 페이지
+    var page = 0
+    //id = 즉 포지션을 데이터 받아온 후 재설정하기 위한 변수
+    var idPosition = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,6 +101,8 @@ class HomeFragment : Fragment() {
         } else {
             context?.setTheme(R.style.AppTheme)
         }
+
+
         //option = mainActivity.getSharedPreferences("option", MODE_PRIVATE)
         /*model.getAll().observe(this, Observer{
             noticeAdapter.setList(it.content)
@@ -105,6 +111,10 @@ class HomeFragment : Fragment() {
             // 새로운 게시물이 추가되었다는 것을 알려줌 (추가된 부분만 새로고침)
             noticeAdapter.notifyItemRangeInserted((page - 1) * 10, 10)
         })*/
+
+        //앱 시작 시 데이터 세팅
+        //dataSet()
+        initDataSet()
         initRecyclerView()
         initSwipeRefrech()
         initScrollListener()
@@ -148,7 +158,8 @@ class HomeFragment : Fragment() {
             todoAdapter!!.notifyDataSetChanged()
 
             homeBinding.recyclerView.startLayoutAnimation()*/
-            dataSet()
+            //dataSet()
+            println(data)
         }
 
 
@@ -350,36 +361,35 @@ class HomeFragment : Fragment() {
                 0 -> {
                     CoroutineScope(Dispatchers.IO).launch {
                         data.add(todo)
+                        //dataSet()
                     }
-
-                    service.addData(todo).enqueue(object : Callback<MyResponse> {
-                        override fun onResponse(
-                            call: Call<MyResponse>,
-                            response: Response<MyResponse?>
-                        ) {
-                            val tdl : TodoListData = response.body()!!.todoData
-
-                            if (response.isSuccessful) {
-                                println("성공 $tdl")
-                            } else {
-                                println("fail")
-                            }
-                        }
-
-                        override fun onFailure(call: Call<MyResponse>, t: Throwable) {
-                            println("실패")
-                        }
-                    })
                     Toast.makeText(activity, "추가되었습니다.", Toast.LENGTH_SHORT).show()
                 }
                 1 -> {
                     CoroutineScope(Dispatchers.IO).launch {
                         data[dataPosition] = todo
+                        dataSet()
+                        service.updateData(todo, tempDataList2[dataPosition]!!.api_id).enqueue(object : Callback<MyResponse> {
+                            override fun onResponse(
+                                call: Call<MyResponse>,
+                                response: Response<MyResponse?>
+                            ) {
+                                if (response.isSuccessful) {
+                                    println("Success")
+                                } else {
+                                    println("fail")
+                                }
+                            }
+                            override fun onFailure(call: Call<MyResponse>, t: Throwable) {
+                                println("실패")
+                            }
+                        })
                     }
                     Toast.makeText(activity, "수정되었습니다.", Toast.LENGTH_SHORT).show()
                 }
             }
             todoAdapter!!.notifyDataSetChanged()
+
         } else if (it.resultCode == RESULT_TEST) {
             val delete = it.data?.getSerializableExtra("DELETE") as ArrayList<TodoListData?>
 
@@ -394,6 +404,9 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun initDataSet() {
+        dataSet() //받아온 데이터를 data에 넣고
+    }
 
     //데이터 받아오는 곳
     private fun dataSet() {
@@ -403,14 +416,22 @@ class HomeFragment : Fragment() {
 
         val service = retrofit.create(TodoInterface::class.java)
 
-        service.getDataByPage(0, null).enqueue(object : Callback<MyResponse> {
+        //page변수 넣기
+        service.getDataByPage(0, 5).enqueue(object : Callback<MyResponse> {
             override fun onResponse(call: Call<MyResponse>, response: Response<MyResponse?>) {
                 if (response.isSuccessful) {
                     //통신 성공
-                    var result : List<TodoListData> = response.body()!!.data.todos
-                    val isSu = response.body()!!.status
-                    println("$isSu")
-                    println("$result")
+                    tempDataList = response.body()!!.data.todos
+                    tempDataList.forEach {
+                        tempDataList2.add(it)
+                        data.add(it)
+                    }
+                    /*idPosition = tempDataList2.size
+                    for (i in 0 until idPosition) {
+                        data[i]!!.position = i
+                    }*/
+                    println(data)
+                    todoAdapter!!.notifyDataSetChanged()
                 } else {
                     //통신 실패
                     println("Fail")
@@ -426,7 +447,10 @@ class HomeFragment : Fragment() {
 
     private fun initSwipeRefrech() {
         homeBinding.refreshSwipeLayout.setOnRefreshListener {
-            todoAdapter!!.listData = data//dataSet()
+            //새로고침 시 데이터를 불러오고
+            dataSet()
+            //다시 가져온 데이터를 바탕으로 입력해줌
+            todoAdapter!!.listData = data
             homeBinding.recyclerView.startLayoutAnimation()
             homeBinding.refreshSwipeLayout.isRefreshing = false
         }
@@ -437,9 +461,11 @@ class HomeFragment : Fragment() {
         todoAdapter = TodoAdapter()
         todoAdapter!!.listData = data
         todoAdapter!!.filterContent = data
+        todoAdapter!!.tempServerData = tempDataList2
         homeBinding.recyclerView.adapter = todoAdapter
-        manager.reverseLayout = true
-        manager.stackFromEnd = true
+        //레이아웃 뒤집기 안씀
+        //manager.reverseLayout = true
+        //manager.stackFromEnd = true
         homeBinding.recyclerView.setHasFixedSize(true)
         homeBinding.recyclerView.layoutManager = manager
     }
@@ -462,6 +488,12 @@ class HomeFragment : Fragment() {
                         }
                     }
                 }
+                if (!isLoading) {
+                    if (layoutm.findLastCompletelyVisibleItemPosition() == data.size-1) {
+                        isLoading = true
+                        getMoreItem()
+                    }
+                }
             }
         })
     }
@@ -482,6 +514,8 @@ class HomeFragment : Fragment() {
 
     private fun getMoreItem() {
         data.add(null)
+        //null을 감지 했으니
+        //이 부분에 프로그래스바가 들어올거라 알림
         homeBinding.recyclerView.adapter!!.notifyItemInserted(data.size-1)
         /*data.removeAt(data.size-1)
         val currentSize = data.size
@@ -532,21 +566,45 @@ class HomeFragment : Fragment() {
             println(data)
         }*/
         //성공//
-        /*val handler = Handler(Looper.getMainLooper())
+        val handler = Handler(Looper.getMainLooper())
         handler.postDelayed(java.lang.Runnable {
+            //null추가한 거 삭제
             data.removeAt(data.size - 1)
-            val scrollPosition: Int = data.size
-            todoAdapter!!.notifyItemRemoved(scrollPosition)
-            var currentSize = scrollPosition
+            //val scrollPosition: Int = data.size
+            //todoAdapter!!.notifyItemRemoved(scrollPosition)
+            //var currentSize = data.size
             //nextLimit과 +5값 조정이 페이지의 한계점
-            val nextLimit = currentSize //현재는 1개추가
-            while (currentSize - 1 < nextLimit) {
-                data.add(TodoListData(currentSize, "Item $currentSize", false))
-                currentSize++
-            }
-            todoAdapter!!.notifyDataSetChanged()
+            page += 1
+
+            service.getDataByPage(page, 5).enqueue(object : Callback<MyResponse> {
+                override fun onResponse(call: Call<MyResponse>, response: Response<MyResponse?>) {
+                    if (response.isSuccessful) {
+                        //통신 성공
+                        tempDataList = response.body()!!.data.todos
+                        tempDataList.forEach {
+                            tempDataList2.add(it)
+                            data.add(it)
+                        }
+                        todoAdapter!!.notifyDataSetChanged()
+                        println("success")
+                    } else {
+                        //통신 실패
+                        println("Fail")
+                    }
+                }
+
+                override fun onFailure(call: Call<MyResponse>, t: Throwable) {
+                    // 통신 실패 (인터넷 끊킴, 예외 발생 등 시스템적인 이유)
+                    println("Error" + t.message.toString())
+                }
+            })
+            /*idPosition = tempDataList2.size
+            for (i in 0 until idPosition) {
+                data[i]!!.position = i
+            }*/
+            println(data)
             isLoading = false
-        }, 2000)*/
+        }, 2000)
     }
 
 
