@@ -36,6 +36,7 @@ class TodoAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
     init {
         //데이터 바인드 시 onBindViewHolder 최적화호출
         setHasStableIds(true)
+
     }
 
     private lateinit var todoItemBinding: TodoItemBinding
@@ -67,6 +68,7 @@ class TodoAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
         fun bind(data : TodoListData, position: Int) {
             this.position = position
             //this.todoItemBinding.todoText.text = data.content
+            todoItemBinding.todoText.text = data.content
 
             checkselected.isChecked = checkBoxStatus[adapterPosition]
             checkselected.isChecked = data.isChecked
@@ -145,8 +147,8 @@ class TodoAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is TodoViewHolder) {
             holder.bind(listData[position]!!, position)
-            val content : TodoListData = listData[position]!!
-            holder.tv_todoText.text = content.content
+            //val content : TodoListData = listData[holder.layoutPosition]!!
+            //holder.tv_todoText.text = content.content
             //holder.bind(filterContent[position]!!, position)
         } else {
 

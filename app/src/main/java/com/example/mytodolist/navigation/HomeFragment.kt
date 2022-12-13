@@ -114,7 +114,10 @@ class HomeFragment : Fragment() {
 
         //앱 시작 시 데이터 세팅
         //dataSet()
-        initDataSet()
+        do {
+            initDataSet()
+        } while (data.size < 0)
+
         initRecyclerView()
         initSwipeRefrech()
         initScrollListener()
@@ -359,17 +362,18 @@ class HomeFragment : Fragment() {
 
             when(it.data?.getIntExtra("flag", -1)) {
                 0 -> {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        data.add(todo)
-                        //dataSet()
-                    }
+                    dataSet()
+                    /*CoroutineScope(Dispatchers.IO).launch {
+                        //data.add(todo)
+                        //데이터 추가한 거 불러오기
+
+                    }*/
                     Toast.makeText(activity, "추가되었습니다.", Toast.LENGTH_SHORT).show()
                 }
                 1 -> {
                     CoroutineScope(Dispatchers.IO).launch {
                         data[dataPosition] = todo
-                        dataSet()
-                        service.updateData(todo, tempDataList2[dataPosition]!!.api_id).enqueue(object : Callback<MyResponse> {
+                        service.updateData(todo, data[dataPosition]!!.api_id).enqueue(object : Callback<MyResponse> {
                             override fun onResponse(
                                 call: Call<MyResponse>,
                                 response: Response<MyResponse?>
@@ -384,6 +388,8 @@ class HomeFragment : Fragment() {
                                 println("실패")
                             }
                         })
+                        //수정한거 데이터에 넣고 불러오기
+                        dataSet()
                     }
                     Toast.makeText(activity, "수정되었습니다.", Toast.LENGTH_SHORT).show()
                 }
@@ -421,21 +427,33 @@ class HomeFragment : Fragment() {
             override fun onResponse(call: Call<MyResponse>, response: Response<MyResponse?>) {
                 if (response.isSuccessful) {
                     //통신 성공
+                    data.clear()
                     tempDataList = response.body()!!.data.todos
+
                     tempDataList.forEach {
                         tempDataList2.add(it)
-                        data.add(it)
+                        //data.add(it)
                     }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        for (list in tempDataList) {
+                            data.add(list)
+                        }
+                    }
+                    todoAdapter!!.notifyDataSetChanged()
+                    println(data)
+                    println("t"+tempDataList)
                     /*idPosition = tempDataList2.size
                     for (i in 0 until idPosition) {
                         data[i]!!.position = i
                     }*/
-                    println(data)
-                    todoAdapter!!.notifyDataSetChanged()
+
+                    //println(tempDataList2)
+
                 } else {
                     //통신 실패
                     println("Fail")
                 }
+
             }
 
             override fun onFailure(call: Call<MyResponse>, t: Throwable) {
@@ -443,18 +461,26 @@ class HomeFragment : Fragment() {
                 println("Error" + t.message.toString())
             }
         })
+
     }
 
     private fun initSwipeRefrech() {
         homeBinding.refreshSwipeLayout.setOnRefreshListener {
-            //새로고침 시 데이터를 불러오고
-            dataSet()
-            //다시 가져온 데이터를 바탕으로 입력해줌
-            todoAdapter!!.listData = data
-            homeBinding.recyclerView.startLayoutAnimation()
-            homeBinding.refreshSwipeLayout.isRefreshing = false
+            //새로고침 시 터치불가능하도록
+            requireActivity().window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE) // 화면 터치 못하게 하기
+            val handler = Handler(Looper.getMainLooper())
+            handler.postDelayed({
+                dataSet()
+                //다시 가져온 데이터를 바탕으로 입력해줌
+                todoAdapter!!.listData = data
+                homeBinding.recyclerView.startLayoutAnimation()
+                homeBinding.refreshSwipeLayout.isRefreshing = false
+                todoAdapter!!.notifyDataSetChanged()
+                requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+            }, 1000)
+            //터치불가능 해제ss
+            //activity?.window!!.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
         }
-        todoAdapter!!.notifyDataSetChanged()
     }
 
     private fun initRecyclerView() {
@@ -575,7 +601,7 @@ class HomeFragment : Fragment() {
             //var currentSize = data.size
             //nextLimit과 +5값 조정이 페이지의 한계점
             page += 1
-
+            //data.clear()
             service.getDataByPage(page, 5).enqueue(object : Callback<MyResponse> {
                 override fun onResponse(call: Call<MyResponse>, response: Response<MyResponse?>) {
                     if (response.isSuccessful) {

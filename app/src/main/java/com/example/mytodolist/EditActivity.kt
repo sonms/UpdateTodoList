@@ -55,7 +55,7 @@ class EditActivity : AppCompatActivity() {
                             response: Response<MyResponse?>
                         ) {
                             if (response.isSuccessful) {
-
+                                //Toast추가 성공메세지
                             } else {
                                 println("fail")
                             }
