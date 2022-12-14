@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mytodolist.*
 import com.example.mytodolist.Adapter.TodoAdapter
 import com.example.mytodolist.databinding.FragmentHomeBinding
+import com.example.mytodolist.databinding.TodoItemBinding
 import com.example.mytodolist.model.MyResponse
 import com.example.mytodolist.model.TodoListData
 import kotlinx.coroutines.CoroutineScope
@@ -373,24 +374,8 @@ class HomeFragment : Fragment() {
                 1 -> {
                     CoroutineScope(Dispatchers.IO).launch {
                         data[dataPosition] = todo
-                        service.updateData(todo, data[dataPosition]!!.api_id).enqueue(object : Callback<MyResponse> {
-                            override fun onResponse(
-                                call: Call<MyResponse>,
-                                response: Response<MyResponse?>
-                            ) {
-                                if (response.isSuccessful) {
-                                    println("Success")
-                                } else {
-                                    println("fail")
-                                }
-                            }
-                            override fun onFailure(call: Call<MyResponse>, t: Throwable) {
-                                println("실패")
-                            }
-                        })
-                        //수정한거 데이터에 넣고 불러오기
-                        dataSet()
                     }
+                    dataSet()
                     Toast.makeText(activity, "수정되었습니다.", Toast.LENGTH_SHORT).show()
                 }
             }

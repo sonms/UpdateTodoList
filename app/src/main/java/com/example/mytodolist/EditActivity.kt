@@ -75,7 +75,23 @@ class EditActivity : AppCompatActivity() {
                 }
             } else if(type.equals("EDIT")){
                 if (contentPost.isNotEmpty()) {
-                    val todoData = TodoListData("Api_id",eTodo!!.position, contentPost, eTodo!!.isChecked)
+                    val todoData = TodoListData(eTodo!!.api_id,eTodo!!.position, contentPost, eTodo!!.isChecked)
+
+                    service.updateData(todoData, todoData!!.api_id).enqueue(object : Callback<MyResponse> {
+                        override fun onResponse(
+                            call: Call<MyResponse>,
+                            response: Response<MyResponse?>
+                        ) {
+                            if (response.isSuccessful) {
+                                println("Success")
+                            } else {
+                                println("fail")
+                            }
+                        }
+                        override fun onFailure(call: Call<MyResponse>, t: Throwable) {
+                            println("실패")
+                        }
+                    })
 
                     val intent = Intent().apply {
                         putExtra("todo", todoData)

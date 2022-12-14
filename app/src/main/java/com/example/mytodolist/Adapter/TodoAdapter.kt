@@ -34,9 +34,11 @@ class TodoAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
         private const val TAG_LOADING = 1
     }
     init {
-        //데이터 바인드 시 onBindViewHolder 최적화호출
+        //아이템에 고유 식별자 (ID)를 부여하여
+        // 이미 바인딩 된 적이 있는 아이템에 대해서는
+        // 재 바인딩이 되지 않도록 한다.
+        // (onBindViewHolder 호출 막음)
         setHasStableIds(true)
-
     }
 
     private lateinit var todoItemBinding: TodoItemBinding
@@ -68,8 +70,12 @@ class TodoAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
         fun bind(data : TodoListData, position: Int) {
             this.position = position
             //this.todoItemBinding.todoText.text = data.content
-            todoItemBinding.todoText.text = data.content
-
+            //todoItemBinding.todoText.text = data.content
+            if (data.content != null) {
+                todoItemBinding.todoText.text = data.content.toString()
+            } else {
+                todoItemBinding.todoText.text = ""
+            }
             checkselected.isChecked = checkBoxStatus[adapterPosition]
             checkselected.isChecked = data.isChecked
 
@@ -146,7 +152,11 @@ class TodoAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is TodoViewHolder) {
-            holder.bind(listData[position]!!, position)
+            //데이터 꼬임 문제를 해결가능
+            //그러나 리사이클러뷰 사용하는 의미가 없음..
+            //holder.setIsRecyclable(false)
+
+            holder.bind(listData[holder.adapterPosition]!!, position)
             //val content : TodoListData = listData[holder.layoutPosition]!!
             //holder.tv_todoText.text = content.content
             //holder.bind(filterContent[position]!!, position)
