@@ -7,6 +7,39 @@
     android:orientation="vertical"
     tools:context=".navigation.HomeFragment">
 
+
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:id="@+id/rv_shimmer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <include layout="@layout/recyclerview_item_layout" />
+
+            <include layout="@layout/recyclerview_item_layout" />
+
+            <include layout="@layout/recyclerview_item_layout" />
+
+            <include layout="@layout/recyclerview_item_layout" />
+
+            <include layout="@layout/recyclerview_item_layout" />
+
+            <include layout="@layout/recyclerview_item_layout" />
+
+            <include layout="@layout/recyclerview_item_layout" />
+
+            <include layout="@layout/recyclerview_item_layout" />
+
+            <include layout="@layout/recyclerview_item_layout" />
+
+            <include layout="@layout/recyclerview_item_layout" />
+        </LinearLayout>
+    </com.facebook.shimmer.ShimmerFrameLayout>
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/refresh_swipe_layout"
         android:layout_width="match_parent"
@@ -25,6 +58,9 @@
             tools:listitem="@layout/todo_item" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+
+
 
     <Button
         android:id="@+id/reflash_button"

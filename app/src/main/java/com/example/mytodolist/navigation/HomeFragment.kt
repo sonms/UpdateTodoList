@@ -17,6 +17,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,8 +27,10 @@ import com.example.mytodolist.databinding.FragmentHomeBinding
 import com.example.mytodolist.databinding.TodoItemBinding
 import com.example.mytodolist.model.MyResponse
 import com.example.mytodolist.model.TodoListData
+import com.facebook.shimmer.ShimmerFrameLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
@@ -80,6 +83,8 @@ class HomeFragment : Fragment() {
     var page = 0
     //id = 즉 포지션을 데이터 받아온 후 재설정하기 위한 변수
     var idPosition = 0
+    var isDataLoading = false
+    var shimmer : ShimmerFrameLayout? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,6 +101,7 @@ class HomeFragment : Fragment() {
         homeBinding = FragmentHomeBinding.inflate(inflater,container,false)
         //tempData = data
         searchData.addAll(data)
+
         sharedPref = this.context?.let { SharedPref(it) }
         if (sharedPref!!.loadNightModeState()) {
             context?.setTheme(R.style.darktheme)
@@ -114,9 +120,17 @@ class HomeFragment : Fragment() {
         })*/
 
         //앱 시작 시 데이터 세팅
+
+
+        //데이터 로딩 shimmer
+        shimmer = homeBinding.rvShimmer
         //dataSet()
         do {
-            initDataSet()
+            lifecycleScope.launch {
+                shimmer!!.startShimmer()
+                delay(3000)
+                dataSet()
+            }
         } while (data.size < 0)
 
         initRecyclerView()
@@ -181,6 +195,7 @@ class HomeFragment : Fragment() {
                 todoAdapter!!.notifyDataSetChanged()
             }
         })
+
         //recyclerview item클릭 시
         todoAdapter!!.setItemClickListener(object :TodoAdapter.ItemClickListener{
             override fun onClick(view: View, position: Int, itemId: Int) {
@@ -395,9 +410,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun initDataSet() {
-        dataSet() //받아온 데이터를 data에 넣고
-    }
 
     //데이터 받아오는 곳
     private fun dataSet() {
@@ -411,6 +423,11 @@ class HomeFragment : Fragment() {
         service.getDataByPage(0, 5).enqueue(object : Callback<MyResponse> {
             override fun onResponse(call: Call<MyResponse>, response: Response<MyResponse?>) {
                 if (response.isSuccessful) {
+                    //데이터 불러오기가 완료되면
+                    //shimmer스탑 후 안보이게
+                    shimmer!!.stopShimmer()
+                    shimmer!!.visibility = View.GONE
+                    //homeBinding.recyclerView.visibility = View.VISIBLE
                     //통신 성공
                     data.clear()
                     tempDataList = response.body()!!.data.todos
@@ -437,12 +454,14 @@ class HomeFragment : Fragment() {
                 } else {
                     //통신 실패
                     println("Fail")
+                    isDataLoading = false
                 }
 
             }
 
             override fun onFailure(call: Call<MyResponse>, t: Throwable) {
                 // 통신 실패 (인터넷 끊킴, 예외 발생 등 시스템적인 이유)
+                isDataLoading = false
                 println("Error" + t.message.toString())
             }
         })

@@ -10,8 +10,8 @@
 
         <CheckBox
             android:id="@+id/iv_sample"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:background="@color/cardview_shadow_start_color"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
