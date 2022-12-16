@@ -71,6 +71,7 @@ class TodoAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
             this.position = position
             //this.todoItemBinding.todoText.text = data.content
             //todoItemBinding.todoText.text = data.content
+            //사용시 null이 잡히는 경우도 있어 조심하거나 다른거로 대체하기
             if (data.content != null) {
                 todoItemBinding.todoText.text = data.content.toString()
             } else {
