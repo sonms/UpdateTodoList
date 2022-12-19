@@ -71,11 +71,11 @@ class TodoAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
             this.position = position
             //this.todoItemBinding.todoText.text = data.content
             //todoItemBinding.todoText.text = data.content
-            /*if (data.content != null) {
+            if (data.content != null) {
                 todoItemBinding.todoText.text = data.content.toString()
             } else {
                 todoItemBinding.todoText.text = ""
-            }*/
+            }
             checkselected.isChecked = checkBoxStatus[adapterPosition]
             checkselected.isChecked = data.isChecked
 
@@ -154,11 +154,11 @@ class TodoAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
         if (holder is TodoViewHolder) {
             //데이터 꼬임 문제를 해결가능
             //그러나 리사이클러뷰 사용하는 의미가 없음..
-            holder.setIsRecyclable(false)
+            //holder.setIsRecyclable(false)
 
             holder.bind(listData[holder.adapterPosition]!!, position)
-            val content : TodoListData = listData[holder.layoutPosition]!!
-            holder.tv_todoText.text = content.content
+            //val content : TodoListData = listData[holder.layoutPosition]!!
+            //holder.tv_todoText.text = content.content
             //holder.bind(filterContent[position]!!, position)
         } else {
 
