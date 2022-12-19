@@ -11,6 +11,7 @@ import android.os.Looper
 import android.view.*
 import android.widget.Button
 import android.widget.ImageSwitcher
+import android.widget.ImageView
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -62,7 +63,7 @@ class HomeFragment : Fragment() {
     //검색용
     private var searchData : MutableList<TodoListData?> = mutableListOf()
     lateinit var filterString : ArrayList<String>
-    private var searchView: SearchView? = null
+    private var searchView: ImageView? = null
     //mode 선택용
     private var isSelect : Boolean = true //true-light, false-dark
     private var mode : ImageSwitcher? = null
@@ -81,6 +82,7 @@ class HomeFragment : Fragment() {
     val service = retrofit.create(TodoInterface::class.java)
     //데이터 페이지
     var page = 0
+    var totalPages = 0
     //id = 즉 포지션을 데이터 받아온 후 재설정하기 위한 변수
     var idPosition = 0
     var isDataLoading = false
@@ -125,6 +127,15 @@ class HomeFragment : Fragment() {
         //데이터 로딩 shimmer
         shimmer = homeBinding.rvShimmer
         //dataSet()
+        //또는 지금은 보여주기 식이지만
+        //진짜는
+        /*
+        shimmer!!.startShimmer()
+        do {
+            dataSet()
+        } while (data.size < 0)
+        * 그냥 위대로만
+        */
         do {
             lifecycleScope.launch {
                 shimmer!!.startShimmer()
@@ -267,14 +278,15 @@ class HomeFragment : Fragment() {
         //val item = menu?.findItem(R.id.menu_action_search)
 
 
-        var searchManager = context?.getSystemService(Context.SEARCH_SERVICE) as SearchManager
-        val searchItem : MenuItem = menu.findItem(R.id.menu_action_search)
+
+        val searchImageView : MenuItem = menu.findItem(R.id.menu_action_search)
         val selectMode : MenuItem = menu.findItem(R.id.select_mode)
 
-        if (searchItem != null) {
+        if (searchImageView != null) {
             //val searchET = searchView!!.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
             //searchET.hint = "Search.."
-            searchView = searchItem.actionView as SearchView
+            //////////
+            /*searchView = searchItem.actionView as SearchView
             searchView!!.queryHint = "Search.."
             searchView!!.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 //검색버튼 입력시 호출, 근데 검색버튼이 없으므로 사용x
@@ -298,9 +310,16 @@ class HomeFragment : Fragment() {
                     return false
                 }
             })
+        }*/
+            ///////////
+            /*searchView = searchImageView.actionView as ImageView
+            searchView!!.setOnClickListener {
+                val intent = Intent(activity, SearchActivity::class.java).apply {
+                    putExtra("page", totalPages)
+                }
+                requestActivity.launch(intent)
+            }*/
         }
-
-
         //다크 모드 활성화 가능한 옵션메뉴
         switch = selectMode.actionView as SwitchCompat
         if (sharedPref!!.loadNightModeState()) {
@@ -352,12 +371,16 @@ class HomeFragment : Fragment() {
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.select_mode -> {
-                isSelect = !item.isChecked
-                item.isChecked = isSelect
+        return when(item.itemId) {
+            R.id.menu_action_search -> {
+                //Toast.makeText(activity, "click", Toast.LENGTH_SHORT).show()
+                val intent = Intent(activity, SearchActivity::class.java).apply {
+                    putExtra("page", totalPages)
+                }
+                requestActivity.launch(intent)
                 true
             }
+
             else -> false
         }
         return super.onOptionsItemSelected(item)
@@ -384,6 +407,7 @@ class HomeFragment : Fragment() {
                         //데이터 추가한 거 불러오기
 
                     }*/
+                    todoAdapter!!.notifyDataSetChanged()
                     Toast.makeText(activity, "추가되었습니다.", Toast.LENGTH_SHORT).show()
                 }
                 1 -> {
@@ -431,7 +455,7 @@ class HomeFragment : Fragment() {
                     //통신 성공
                     data.clear()
                     tempDataList = response.body()!!.data.todos
-
+                    totalPages = response.body()!!.data.paging.total_pages
                     tempDataList.forEach {
                         tempDataList2.add(it)
                         //data.add(it)
