@@ -9,10 +9,13 @@ import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mytodolist.Adapter.SearchItemAdapter
 import com.example.mytodolist.Adapter.SearchWordAdapter
+import com.example.mytodolist.Adapter.TodoAdapter
 import com.example.mytodolist.databinding.ActivitySearchBinding
 import com.example.mytodolist.model.SearchData
 import com.example.mytodolist.model.SearchWordData
-import kotlinx.android.synthetic.main.activity_search.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class SearchActivity : AppCompatActivity() {
     private lateinit var mBinding : ActivitySearchBinding
@@ -22,12 +25,17 @@ class SearchActivity : AppCompatActivity() {
     private var searchItemAdapter : SearchItemAdapter? = null
     private var searchItemList = mutableListOf<SearchData?>()
     var searchId = 0
+    var sharedPref : SharedPref? = null
+    private var setKey = "setting_search_history"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mBinding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
 
+        sharedPref = SharedPref(this)
+
         initWordRecyclerView()
+        getHistory()
 
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
@@ -36,6 +44,7 @@ class SearchActivity : AppCompatActivity() {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (!query.isNullOrEmpty()) {
                     searchWordList.add(SearchWordData(searchId, query))
+                    sharedPref!!.setSearchHistory(this@SearchActivity, setKey, searchWordList)
                     searchWordAdapter!!.notifyDataSetChanged()
                     searchId += 1
                     println(query)
@@ -53,6 +62,14 @@ class SearchActivity : AppCompatActivity() {
             }
         })
 
+        //recyclerview item클릭 시
+        searchWordAdapter!!.setItemClickListener(object : SearchWordAdapter.ItemClickListener{
+            override fun onClick(view: View, position: Int, itemId: Int) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    println(searchWordList[position])
+                }
+            }
+        })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -76,5 +93,18 @@ class SearchActivity : AppCompatActivity() {
         mBinding.searchWordRv.layoutManager = manager
         mBinding.searchWordRv.setHasFixedSize(true)
 
+    }
+
+    private fun getHistory() {
+        var historyData = sharedPref!!.getSearchHistory(this@SearchActivity, setKey)
+        if (historyData.isNotEmpty()) {
+            searchWordList.clear()
+            //searchWordList.addAll(historyData)
+            for (i in historyData.indices) {
+                searchWordList.add(SearchWordData(i,historyData[i]))
+                println(historyData[i])
+                println(searchWordList)
+            }
+        }
     }
 }
