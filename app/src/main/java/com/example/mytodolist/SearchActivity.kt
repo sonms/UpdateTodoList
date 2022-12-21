@@ -27,6 +27,8 @@ class SearchActivity : AppCompatActivity() {
     var searchId = 0
     var sharedPref : SharedPref? = null
     private var setKey = "setting_search_history"
+    private var isEnter = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mBinding = ActivitySearchBinding.inflate(layoutInflater)
@@ -36,8 +38,10 @@ class SearchActivity : AppCompatActivity() {
 
         initWordRecyclerView()
         getHistory()
-
+        //자동으로 키보드 띄우기
+        searchViewkeyBoard(isEnter)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+
 
         mBinding.activitySearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             //검색버튼 눌렀을 때 실행
@@ -47,6 +51,7 @@ class SearchActivity : AppCompatActivity() {
                     sharedPref!!.setSearchHistory(this@SearchActivity, setKey, searchWordList)
                     searchWordAdapter!!.notifyDataSetChanged()
                     searchId += 1
+                    isEnter = false
                     println(query)
                     println(searchWordList)
                 } else {
@@ -106,5 +111,9 @@ class SearchActivity : AppCompatActivity() {
                 println(searchWordList)
             }
         }
+    }
+
+    private fun searchViewkeyBoard(isEnter : Boolean) {
+        mBinding.activitySearch.isIconified = !isEnter
     }
 }
