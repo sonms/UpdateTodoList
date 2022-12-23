@@ -189,6 +189,8 @@ class HomeFragment : Fragment() {
             homeBinding.recyclerView.startLayoutAnimation()*/
             //dataSet()
             println(data)
+            val s = this.arguments?.getString("searchword")
+            println(s)
         }
 
 
@@ -263,7 +265,7 @@ class HomeFragment : Fragment() {
             }
         }
         activity?.onBackPressedDispatcher!!.addCallback(this, callback)
-        mainActivity = context as MainActivity
+        //mainActivity = context as MainActivity
     }
     //끝 부분
     //Replace 함수나 backward 로 Fragment 를 삭제하는 경우 실행되는 함수
@@ -407,7 +409,7 @@ class HomeFragment : Fragment() {
                         //데이터 추가한 거 불러오기
 
                     }*/
-                    todoAdapter!!.notifyDataSetChanged()
+                    //todoAdapter!!.notifyDataSetChanged()
                     Toast.makeText(activity, "추가되었습니다.", Toast.LENGTH_SHORT).show()
                 }
                 1 -> {

@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
+import android.widget.ImageView
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mytodolist.Adapter.SearchItemAdapter
@@ -22,13 +24,11 @@ class SearchActivity : AppCompatActivity() {
     private var manager : LinearLayoutManager = LinearLayoutManager(this)
     private var searchWordAdapter : SearchWordAdapter? = null
     private var searchWordList = mutableListOf<SearchWordData?>()
-    private var searchItemAdapter : SearchItemAdapter? = null
-    private var searchItemList = mutableListOf<SearchData?>()
     var searchId = 0
     var sharedPref : SharedPref? = null
     private var setKey = "setting_search_history"
     private var isEnter = true
-
+    private var itemType = mutableListOf<String>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mBinding = ActivitySearchBinding.inflate(layoutInflater)
@@ -42,18 +42,33 @@ class SearchActivity : AppCompatActivity() {
         searchViewkeyBoard(isEnter)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
-
+        val close = mBinding.activitySearch.findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
+        close.setOnClickListener {
+            println("close")
+        }
+        val searchET = mBinding.activitySearch.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
+        searchET.setOnClickListener {
+            println("et")
+        }
+        mBinding.activitySearch.queryHint = "검색어를 입력해주세요"
         mBinding.activitySearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             //검색버튼 눌렀을 때 실행
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (!query.isNullOrEmpty()) {
                     searchWordList.add(SearchWordData(searchId, query))
+                    //앱을 종료 후에도 기록이 남도록
                     sharedPref!!.setSearchHistory(this@SearchActivity, setKey, searchWordList)
                     searchWordAdapter!!.notifyDataSetChanged()
                     searchId += 1
                     isEnter = false
                     println(query)
                     println(searchWordList)
+                    /*CoroutineScope(Dispatchers.IO).launch {
+                        val intent = Intent(this@SearchActivity, SearchViewAcitivity::class.java).apply {
+                            putExtra("searchword", query)
+                        }
+                        startActivity(intent)
+                    }*/
                 } else {
 
                 }

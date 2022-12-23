@@ -19,7 +19,7 @@ class EditActivity : AppCompatActivity() {
     private var id = 0
     private var eTodo : TodoListData? = null
 
-    //
+    //데이터 통신
     val retrofit = Retrofit.Builder().baseUrl("https://waffle.gq")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
