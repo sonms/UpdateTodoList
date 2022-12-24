@@ -35,6 +35,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -42,6 +44,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 private const val RESULT_TEST = 2
+private const val RESULT_SEARCH = 4
 
 class HomeFragment : Fragment() {
     private var param1: String? = null
@@ -61,12 +64,15 @@ class HomeFragment : Fragment() {
     private lateinit var tempDataList : List<TodoListData> //reponse에서 받은 서버 데이터
     private var tempDataList2 : MutableList<TodoListData?> = mutableListOf() //tempdatalist에 데이터를 다시 저장
     //검색용
+    private lateinit var searchTempDataList : List<TodoListData>
     private var searchData : MutableList<TodoListData?> = mutableListOf()
+    private var searchDataTest : MutableList<TodoListData?> = mutableListOf()
+    private var filterData : MutableList<TodoListData?> = mutableListOf()
     lateinit var filterString : ArrayList<String>
     private var searchView: ImageView? = null
     //mode 선택용
-    private var isSelect : Boolean = true //true-light, false-dark
-    private var mode : ImageSwitcher? = null
+    /*private var isSelect : Boolean = true //true-light, false-dark
+    private var mode : ImageSwitcher? = null*/
     private var switch : SwitchCompat? = null
     //상태유지
     var sharedPref : SharedPref? = null
@@ -83,10 +89,13 @@ class HomeFragment : Fragment() {
     //데이터 페이지
     var page = 0
     var totalPages = 0
+    var isLastPage = false
+    var searchPage = 0
     //id = 즉 포지션을 데이터 받아온 후 재설정하기 위한 변수
     var idPosition = 0
     var isDataLoading = false
     var shimmer : ShimmerFrameLayout? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,7 +111,6 @@ class HomeFragment : Fragment() {
     ): View {
         homeBinding = FragmentHomeBinding.inflate(inflater,container,false)
         //tempData = data
-        searchData.addAll(data)
 
         sharedPref = this.context?.let { SharedPref(it) }
         if (sharedPref!!.loadNightModeState()) {
@@ -141,6 +149,7 @@ class HomeFragment : Fragment() {
                 shimmer!!.startShimmer()
                 delay(3000)
                 dataSet()
+                searchDataSet()
             }
         } while (data.size < 0)
 
@@ -188,9 +197,10 @@ class HomeFragment : Fragment() {
 
             homeBinding.recyclerView.startLayoutAnimation()*/
             //dataSet()
-            println(data)
-            val s = this.arguments?.getString("searchword")
-            println(s)
+            println("data"+data)
+            println("filter"+filterData)
+            println("searchData $searchData")
+            println("test $searchDataTest")
         }
 
 
@@ -281,10 +291,10 @@ class HomeFragment : Fragment() {
 
 
 
-        val searchImageView : MenuItem = menu.findItem(R.id.menu_action_search)
+        //val searchImageView : MenuItem = menu.findItem(R.id.menu_action_search)
         val selectMode : MenuItem = menu.findItem(R.id.select_mode)
 
-        if (searchImageView != null) {
+        /*if (searchImageView != null) {
             //val searchET = searchView!!.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
             //searchET.hint = "Search.."
             //////////
@@ -321,7 +331,7 @@ class HomeFragment : Fragment() {
                 }
                 requestActivity.launch(intent)
             }*/
-        }
+        }*/
         //다크 모드 활성화 가능한 옵션메뉴
         switch = selectMode.actionView as SwitchCompat
         if (sharedPref!!.loadNightModeState()) {
@@ -395,47 +405,122 @@ class HomeFragment : Fragment() {
         activity?.finish()
     }
 
-    private val requestActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode == RESULT_OK) {
-            //getSerializableExtra = intent의 값을 보내고 받을때사용
-            //타입 변경을 해주지 않으면 Serializable객체로 만들어지니 as로 캐스팅해주자
-            val todo = it.data?.getSerializableExtra("todo") as TodoListData
+    private val requestActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { it ->
+        when (it.resultCode) {
+            RESULT_OK -> {
+                //getSerializableExtra = intent의 값을 보내고 받을때사용
+                //타입 변경을 해주지 않으면 Serializable객체로 만들어지니 as로 캐스팅해주자
+                val todo = it.data?.getSerializableExtra("todo") as TodoListData
 
-            when(it.data?.getIntExtra("flag", -1)) {
-                0 -> {
-                    dataSet()
-                    /*CoroutineScope(Dispatchers.IO).launch {
-                        //data.add(todo)
-                        //데이터 추가한 거 불러오기
+                when(it.data?.getIntExtra("flag", -1)) {
+                    //add
+                    0 -> {
+                        dataSet()
+                        /*CoroutineScope(Dispatchers.IO).launch {
+                            //data.add(todo)
+                            //데이터 추가한 거 불러오기
 
-                    }*/
-                    //todoAdapter!!.notifyDataSetChanged()
-                    Toast.makeText(activity, "추가되었습니다.", Toast.LENGTH_SHORT).show()
-                }
-                1 -> {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        data[dataPosition] = todo
+                        }*/
+                        //todoAdapter!!.notifyDataSetChanged()
+                        Toast.makeText(activity, "추가되었습니다.", Toast.LENGTH_SHORT).show()
                     }
-                    dataSet()
-                    Toast.makeText(activity, "수정되었습니다.", Toast.LENGTH_SHORT).show()
-                }
-            }
-            todoAdapter!!.notifyDataSetChanged()
-
-        } else if (it.resultCode == RESULT_TEST) {
-            val delete = it.data?.getSerializableExtra("DELETE") as ArrayList<TodoListData?>
-
-            when(it.data?.getIntExtra("flag",-2)) {
-                2 -> {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        todoAdapter!!.testData = delete
+                    //edit
+                    1 -> {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            data[dataPosition] = todo
+                        }
+                        dataSet()
+                        Toast.makeText(activity, "수정되었습니다.", Toast.LENGTH_SHORT).show()
                     }
                 }
+                todoAdapter!!.notifyDataSetChanged()
+
             }
-            todoAdapter!!.notifyDataSetChanged()
+            //임시저장소 속에 데이터 지우기
+            RESULT_TEST -> {
+                val delete = it.data?.getSerializableExtra("DELETE") as ArrayList<TodoListData?>
+
+                when(it.data?.getIntExtra("flag",-2)) {
+                    2 -> {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            todoAdapter!!.testData = delete
+                        }
+                    }
+                }
+                todoAdapter!!.notifyDataSetChanged()
+            }
+            //search
+            RESULT_SEARCH -> {
+                val searchQuery = it.data?.getSerializableExtra("SEARCH") as String
+
+                when(it.data?.getIntExtra("flag",-3)) {
+                    4 -> {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            filterData.clear()
+                            val filterString = searchQuery.toString().lowercase(Locale.getDefault()).trim {it < ' '}
+                            for (item in searchData) {
+                                if (item!!.content!!.lowercase(Locale.getDefault()).contains(filterString)) {
+                                    filterData.add(item)
+                                }
+                            }
+                            for (tem in searchDataTest) {
+                                if (tem!!.content!!.lowercase(Locale.getDefault()).contains(filterString)) {
+                                    println("tem - $tem")
+                                }
+                            }
+                            /*filterData = searchData.filter {
+                                it!!.content == searchQuery
+                            } as MutableList<TodoListData?>*/
+                            todoAdapter!!.listData = filterData
+                        }
+                        println("search"+searchData)
+                    }
+                }
+                todoAdapter!!.notifyDataSetChanged()
+            }
         }
     }
+    private fun searchDataSet() {
+        val retrofit = Retrofit.Builder().baseUrl("https://waffle.gq")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
 
+        val service = retrofit.create(TodoInterface::class.java)
+
+        for (i in 0..10) {
+            service.getDataByPage(i, 5).enqueue(object : Callback<MyResponse> {
+                override fun onResponse(call: Call<MyResponse>, response: Response<MyResponse?>) {
+                    if (response.isSuccessful) {
+                        //데이터 불러오기가 완료되면
+                        //shimmer스탑 후 안보이게
+                        shimmer!!.stopShimmer()
+                        shimmer!!.visibility = View.GONE
+                        //homeBinding.recyclerView.visibility = View.VISIBLE
+                        //통신 성공
+                        searchTempDataList = response.body()!!.data.todos
+                        isLastPage = response.body()!!.data.paging.is_last_page
+                        println("$searchPage $searchTempDataList")
+                        searchTempDataList.forEach {
+                            //data.add(it)
+                            //searchData.add(it)
+                            searchDataTest.add(it)
+                        }
+                    } else {
+                        //통신 실패
+                        println("Fail")
+                        isDataLoading = false
+                    }
+                }
+
+                override fun onFailure(call: Call<MyResponse>, t: Throwable) {
+                    // 통신 실패 (인터넷 끊킴, 예외 발생 등 시스템적인 이유)
+                    isDataLoading = false
+                    println("Error" + t.message.toString())
+                }
+            })
+        }
+
+    }
 
     //데이터 받아오는 곳
     private fun dataSet() {
@@ -458,9 +543,12 @@ class HomeFragment : Fragment() {
                     data.clear()
                     tempDataList = response.body()!!.data.todos
                     totalPages = response.body()!!.data.paging.total_pages
+                    val c = response.body()!!.data.paging.current_page
+                    val l = response.body()!!.data.paging.is_last_page
                     tempDataList.forEach {
                         tempDataList2.add(it)
                         //data.add(it)
+                        searchData.add(it)
                     }
                     CoroutineScope(Dispatchers.IO).launch {
                         for (list in tempDataList) {
@@ -470,6 +558,9 @@ class HomeFragment : Fragment() {
                     todoAdapter!!.notifyDataSetChanged()
                     println(data)
                     println("t"+tempDataList)
+                    println("page $totalPages")
+                    println("current $c")
+                    println("last $l")
                     /*idPosition = tempDataList2.size
                     for (i in 0 until idPosition) {
                         data[i]!!.position = i

@@ -19,16 +19,19 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+
+
 class SearchActivity : AppCompatActivity() {
     private lateinit var mBinding : ActivitySearchBinding
     private var manager : LinearLayoutManager = LinearLayoutManager(this)
     private var searchWordAdapter : SearchWordAdapter? = null
     private var searchWordList = mutableListOf<SearchWordData?>()
+    private val RESULT_SEARCH = 4
     var searchId = 0
     var sharedPref : SharedPref? = null
     private var setKey = "setting_search_history"
     private var isEnter = true
-    private var itemType = mutableListOf<String>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mBinding = ActivitySearchBinding.inflate(layoutInflater)
@@ -69,6 +72,12 @@ class SearchActivity : AppCompatActivity() {
                         }
                         startActivity(intent)
                     }*/
+                    val intent = Intent().apply {
+                        putExtra("SEARCH", query)
+                        putExtra("flag",4)
+                    }
+                    setResult(RESULT_SEARCH, intent)
+                    finish()
                 } else {
 
                 }
