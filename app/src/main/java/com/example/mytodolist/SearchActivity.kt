@@ -65,7 +65,7 @@ class SearchActivity : AppCompatActivity() {
                     searchId += 1
                     isEnter = false
                     println(query)
-                    println(searchWordList)
+                    //println(searchWordList)
                     /*CoroutineScope(Dispatchers.IO).launch {
                         val intent = Intent(this@SearchActivity, SearchViewAcitivity::class.java).apply {
                             putExtra("searchword", query)
@@ -95,7 +95,12 @@ class SearchActivity : AppCompatActivity() {
         searchWordAdapter!!.setItemClickListener(object : SearchWordAdapter.ItemClickListener{
             override fun onClick(view: View, position: Int, itemId: Int) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    println(searchWordList[position])
+                    val intent = Intent().apply {
+                        putExtra("SEARCH", searchWordList[position]!!.searchWordText.toString())
+                        putExtra("flag",4)
+                    }
+                    setResult(RESULT_SEARCH,intent)
+                    finish()
                 }
             }
         })

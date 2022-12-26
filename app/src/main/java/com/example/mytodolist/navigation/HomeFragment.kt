@@ -70,6 +70,8 @@ class HomeFragment : Fragment() {
     private var filterData : MutableList<TodoListData?> = mutableListOf()
     lateinit var filterString : ArrayList<String>
     private var searchView: ImageView? = null
+    private var firstSearchPage = 0
+    private var lastSearchPage = 5
     //mode 선택용
     /*private var isSelect : Boolean = true //true-light, false-dark
     private var mode : ImageSwitcher? = null*/
@@ -87,10 +89,11 @@ class HomeFragment : Fragment() {
         .build()
     val service = retrofit.create(TodoInterface::class.java)
     //데이터 페이지
-    var page = 0
+    var page = 0 //무한 스크롤
     var totalPages = 0
     var isLastPage = false
-    var searchPage = 0
+    var searchPage = 0 //검색 페이지
+    var lPage = 0
     //id = 즉 포지션을 데이터 받아온 후 재설정하기 위한 변수
     var idPosition = 0
     var isDataLoading = false
@@ -149,7 +152,7 @@ class HomeFragment : Fragment() {
                 shimmer!!.startShimmer()
                 delay(3000)
                 dataSet()
-                searchDataSet()
+                //searchDataSet()
             }
         } while (data.size < 0)
 
@@ -201,6 +204,7 @@ class HomeFragment : Fragment() {
             println("filter"+filterData)
             println("searchData $searchData")
             println("test $searchDataTest")
+            println("totalpage $totalPages")
         }
 
 
@@ -451,27 +455,39 @@ class HomeFragment : Fragment() {
             }
             //search
             RESULT_SEARCH -> {
-                val searchQuery = it.data?.getSerializableExtra("SEARCH") as String
+                shimmer!!.visibility = View.VISIBLE
+                shimmer!!.startShimmer()
+                val searchQuery = it.data?.getSerializableExtra("SEARCH") as String?
+
+                searchDataSet()
 
                 when(it.data?.getIntExtra("flag",-3)) {
                     4 -> {
                         CoroutineScope(Dispatchers.IO).launch {
                             filterData.clear()
+
                             val filterString = searchQuery.toString().lowercase(Locale.getDefault()).trim {it < ' '}
-                            for (item in searchData) {
+                            /*for (item in searchData) {
                                 if (item!!.content!!.lowercase(Locale.getDefault()).contains(filterString)) {
                                     filterData.add(item)
                                 }
-                            }
-                            for (tem in searchDataTest) {
-                                if (tem!!.content!!.lowercase(Locale.getDefault()).contains(filterString)) {
-                                    println("tem - $tem")
+                            }*/
+                            for (searchItem in searchDataTest) {
+                                if (searchItem!!.content!!.lowercase(Locale.getDefault()).contains(filterString)) {
+                                    //println("tem - $tem")
+                                    filterData.add(searchItem)
                                 }
                             }
                             /*filterData = searchData.filter {
                                 it!!.content == searchQuery
                             } as MutableList<TodoListData?>*/
-                            todoAdapter!!.listData = filterData
+                            if (filterData.isEmpty()) {
+                                homeBinding.searchNotTv.visibility = View.VISIBLE
+                                todoAdapter!!.listData = filterData
+                            } else {
+                                homeBinding.searchNotTv.visibility = View.GONE
+                                todoAdapter!!.listData = filterData
+                            }
                         }
                         println("search"+searchData)
                     }
@@ -487,7 +503,51 @@ class HomeFragment : Fragment() {
 
         val service = retrofit.create(TodoInterface::class.java)
 
-        for (i in 0..10) {
+        /*if (isLastPage) {
+            println(lPage)
+        } else {
+            for (i in firstSearchPage..lastSearchPage) {
+                service.getDataByPage(i, 5).enqueue(object : Callback<MyResponse> {
+                    override fun onResponse(call: Call<MyResponse>, response: Response<MyResponse?>) {
+                        if (response.isSuccessful) {
+                            //데이터 불러오기가 완료되면
+                            //shimmer스탑 후 안보이게
+                            shimmer!!.stopShimmer()
+                            shimmer!!.visibility = View.GONE
+                            //homeBinding.recyclerView.visibility = View.VISIBLE
+                            //통신 성공
+                            searchTempDataList = response.body()!!.data.todos
+                            isLastPage = response.body()!!.data.paging.is_last_page
+                            println("$i $searchTempDataList")
+                            println("f"+firstSearchPage)
+                            println("l"+lastSearchPage)
+                            searchTempDataList.forEach {
+                                //data.add(it)
+                                //searchData.add(it)
+                                searchDataTest.add(it)
+                            }
+                            if (!isLastPage) {
+                                firstSearchPage = lastSearchPage
+                                lastSearchPage += 5
+                            } else {
+                                lPage = i
+                            }
+                        } else {
+                            //통신 실패
+                            println("Fail")
+                            isDataLoading = false
+                        }
+                    }
+
+                    override fun onFailure(call: Call<MyResponse>, t: Throwable) {
+                        // 통신 실패 (인터넷 끊킴, 예외 발생 등 시스템적인 이유)
+                        isDataLoading = false
+                        println("Error" + t.message.toString())
+                    }
+                })
+            }
+        }*/
+        for (i in 0..totalPages) {
             service.getDataByPage(i, 5).enqueue(object : Callback<MyResponse> {
                 override fun onResponse(call: Call<MyResponse>, response: Response<MyResponse?>) {
                     if (response.isSuccessful) {
@@ -499,7 +559,8 @@ class HomeFragment : Fragment() {
                         //통신 성공
                         searchTempDataList = response.body()!!.data.todos
                         isLastPage = response.body()!!.data.paging.is_last_page
-                        println("$searchPage $searchTempDataList")
+                        println("$i $searchTempDataList")
+                        println(isLastPage)
                         searchTempDataList.forEach {
                             //data.add(it)
                             //searchData.add(it)

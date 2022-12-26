@@ -60,7 +60,22 @@
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 
-
+    <TextView
+        android:id="@+id/search_not_tv"
+        android:layout_width="410dp"
+        android:layout_height="60dp"
+        android:gravity="center_horizontal"
+        android:text="검색 결과가 없습니다."
+        android:textAlignment="center"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.443" />
 
     <Button
         android:id="@+id/reflash_button"
