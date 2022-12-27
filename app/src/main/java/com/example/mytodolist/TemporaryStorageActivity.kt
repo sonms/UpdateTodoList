@@ -9,22 +9,43 @@ import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mytodolist.Adapter.TemporaryStorageAdapter
 import com.example.mytodolist.databinding.ActivityTemporaryStorageBinding
+import com.example.mytodolist.model.MyResponse
 import com.example.mytodolist.model.TodoListData
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 
 class TemporaryStorageActivity : AppCompatActivity() {
     private val RESULT_TEST = 2
     private lateinit var temporaryStorageBinding: ActivityTemporaryStorageBinding
     private var temporaryStorageAdapter : TemporaryStorageAdapter? = null
-    private var tempStorage = ArrayList<TodoListData?>()
+    private var tempStorage = ArrayList<TodoListData?>() //recyclerview 데이터
+    private lateinit var trashTempDataList : List<TodoListData>
     private var manager : LinearLayoutManager = LinearLayoutManager(this)
-    private var tempItem : ArrayList<TodoListData?> = ArrayList()
+    private var tempItem : ArrayList<TodoListData?> = ArrayList() //받기
     //뒤로가기 이벤트
     var backPressedTime : Long = 0
+
+    //데이터
+    val retrofit = Retrofit.Builder().baseUrl("https://waffle.gq")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+    val service = retrofit.create(TodoInterface::class.java)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         temporaryStorageBinding = ActivityTemporaryStorageBinding.inflate(layoutInflater)
         setContentView(temporaryStorageBinding.root)
+
+
+        trashDataSet()
+
 
         val type = intent.getStringExtra("type")
 
@@ -42,18 +63,16 @@ class TemporaryStorageActivity : AppCompatActivity() {
 
 
         temporaryStorageBinding.testData.setOnClickListener {
-            tempStorage.clear()
+            println(tempStorage)
 
             //temporaryStorageAdapter!!.storageData = dataSet()
-
-            temporaryStorageAdapter!!.notifyDataSetChanged()
         }
 
 
-        if (temporaryStorageAdapter!!.itemCount == 0) {
+        if (temporaryStorageAdapter!!.storageDataList.size == 0) {
             temporaryStorageBinding.nullTv.visibility = View.VISIBLE
         } else {
-            println(temporaryStorageAdapter!!.itemCount)
+            println(temporaryStorageAdapter!!.storageDataList.size)
             temporaryStorageBinding.nullTv.visibility = View.GONE
         }
     }
@@ -62,7 +81,7 @@ class TemporaryStorageActivity : AppCompatActivity() {
         when(item.itemId) {
             android.R.id.home -> {
                 val intent = Intent().apply {
-                    putExtra("DELETE", temporaryStorageAdapter!!.storageData)
+                    putExtra("DELETE", temporaryStorageAdapter!!.storageDataList)
                     putExtra("flag", 2)
                 }
                 setResult(RESULT_TEST, intent)
@@ -77,7 +96,7 @@ class TemporaryStorageActivity : AppCompatActivity() {
         //2.5초이내에 한 번 더 뒤로가기 클릭 시
         if (System.currentTimeMillis() - backPressedTime < 2500) {
             val intent = Intent().apply {
-                putExtra("DELETE", temporaryStorageAdapter!!.storageData)
+                putExtra("DELETE", temporaryStorageAdapter!!.storageDataList)
                 putExtra("flag", 2)
             }
             setResult(RESULT_TEST, intent)
@@ -89,12 +108,49 @@ class TemporaryStorageActivity : AppCompatActivity() {
         backPressedTime = System.currentTimeMillis()
     }
 
+    private fun trashDataSet() {
+        service.getTrashDataByPage(0, 10).enqueue(object : Callback<MyResponse> {
+            override fun onResponse(call: Call<MyResponse>, response: Response<MyResponse?>) {
+                if (response.isSuccessful) {
+                    //데이터 불러오기가 완료되면
+
+                    //통신 성공
+                    trashTempDataList = response.body()!!.data.todos
+
+
+                    /*trashTempDataList.forEach {
+                        //data.add(it)
+                        //searchData.add(it)
+                        tempStorage.add(it)
+                    }*/
+
+                    CoroutineScope(Dispatchers.IO).launch {
+                        for (list in trashTempDataList) {
+                            tempStorage.add(list)
+                        }
+                    }
+
+                    temporaryStorageAdapter!!.notifyDataSetChanged()
+
+                } else {
+                    //통신 실패
+                    println("Fail")
+                }
+            }
+
+            override fun onFailure(call: Call<MyResponse>, t: Throwable) {
+                // 통신 실패 (인터넷 끊킴, 예외 발생 등 시스템적인 이유)
+                println("Error" + t.message.toString())
+            }
+        })
+    }
 
     private fun initStorageRecyclerView() {
         temporaryStorageAdapter = TemporaryStorageAdapter()
         //tempStorage = temporaryStorageAdapter!!.storageData
-        temporaryStorageAdapter!!.storageData = tempStorage
+        temporaryStorageAdapter!!.storageDataList = tempStorage
         temporaryStorageBinding.temporaryStorageRecyclerview.adapter = temporaryStorageAdapter
         temporaryStorageBinding.temporaryStorageRecyclerview.layoutManager = manager
     }
+
 }

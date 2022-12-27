@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity() {
                     val last = manager!!.findFirstCompletelyVisibleItemPosition()
                     smoothScroller.targetPosition = 0
                     if (last >= 0) {
-                        println(last)
+                        //println(last)
                         manager!!.startSmoothScroll(smoothScroller)
                     } else {
                         setFragment(TAG_HOME, HomeFragment())

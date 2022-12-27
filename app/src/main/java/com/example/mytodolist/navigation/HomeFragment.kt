@@ -548,7 +548,7 @@ class HomeFragment : Fragment() {
             }
         }*/
         for (i in 0..totalPages) {
-            service.getDataByPage(i, 5).enqueue(object : Callback<MyResponse> {
+            service.getDataByPage(i, 10).enqueue(object : Callback<MyResponse> {
                 override fun onResponse(call: Call<MyResponse>, response: Response<MyResponse?>) {
                     if (response.isSuccessful) {
                         //데이터 불러오기가 완료되면
@@ -592,7 +592,7 @@ class HomeFragment : Fragment() {
         val service = retrofit.create(TodoInterface::class.java)
 
         //page변수 넣기
-        service.getDataByPage(0, 5).enqueue(object : Callback<MyResponse> {
+        service.getDataByPage(0, 10).enqueue(object : Callback<MyResponse> {
             override fun onResponse(call: Call<MyResponse>, response: Response<MyResponse?>) {
                 if (response.isSuccessful) {
                     //데이터 불러오기가 완료되면
@@ -784,7 +784,7 @@ class HomeFragment : Fragment() {
             //nextLimit과 +5값 조정이 페이지의 한계점
             page += 1
             //data.clear()
-            service.getDataByPage(page, 5).enqueue(object : Callback<MyResponse> {
+            service.getDataByPage(page, 10).enqueue(object : Callback<MyResponse> {
                 override fun onResponse(call: Call<MyResponse>, response: Response<MyResponse?>) {
                     if (response.isSuccessful) {
                         //통신 성공

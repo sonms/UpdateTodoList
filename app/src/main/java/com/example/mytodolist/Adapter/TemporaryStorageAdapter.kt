@@ -19,7 +19,7 @@ class TemporaryStorageAdapter : RecyclerView.Adapter<TemporaryStorageAdapter.Tem
 
     private lateinit var temporaryStorageItemBinding: TemporaryStorageItemBinding
     private lateinit var context: Context
-    var storageData = ArrayList<TodoListData?>()
+    var storageDataList = ArrayList<TodoListData?>()
     private var todoAdapter: TodoAdapter? = null
 
     //데이터 연결
@@ -45,10 +45,12 @@ class TemporaryStorageAdapter : RecyclerView.Adapter<TemporaryStorageAdapter.Tem
             tempRemove.setOnClickListener {
                 removeData(this.layoutPosition)
                 todoAdapter = TodoAdapter()
-                todoAdapter!!.isRemove = true
+
                 //새로운 어댑터 생성이라 데이터가 안넘어옴
                 //println(todoAdapter!!.testData)
-                removeServerData("6390b6d1331d3a4d4c1a5c3c")
+                //removeServerData(storageDataList[this.layoutPosition]!!.api_id)
+                println("id"+storageDataList[this.layoutPosition]!!.api_id)
+                println("content"+storageDataList[this.layoutPosition]!!.content)
             }
         }
     }
@@ -60,16 +62,16 @@ class TemporaryStorageAdapter : RecyclerView.Adapter<TemporaryStorageAdapter.Tem
     }
 
     override fun onBindViewHolder(holder: TempViewHolder, position: Int) {
-        holder.bind(storageData[position]!!, position)
+        holder.bind(storageDataList[position]!!, position)
     }
 
     override fun getItemCount(): Int {
-        return storageData.size
+        return storageDataList.size
     }
 
     //////////데이터 handle
     fun removeData(position: Int) {
-        storageData.removeAt(position)
+        storageDataList.removeAt(position)
         notifyItemRemoved(position)
     }
 
@@ -93,7 +95,7 @@ class TemporaryStorageAdapter : RecyclerView.Adapter<TemporaryStorageAdapter.Tem
     }
 
     fun addData(itemData : TodoListData) {
-        storageData.add(itemData)
+        storageDataList.add(itemData)
         notifyDataSetChanged()
     }
 }

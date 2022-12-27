@@ -22,4 +22,9 @@ interface TodoInterface {
 
     @DELETE("todo/{id}")
     fun deleteData(@Path("id") todoId : String) : Call<MyResponse>
+
+    @GET("todo/trash")
+    fun getTrashDataByPage(@Query("page") page : Int,
+                           @Query("size") size : Int?) : Call<MyResponse>
+
 }
