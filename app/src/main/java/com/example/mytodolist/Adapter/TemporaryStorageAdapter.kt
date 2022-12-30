@@ -19,7 +19,9 @@ class TemporaryStorageAdapter : RecyclerView.Adapter<TemporaryStorageAdapter.Tem
 
     private lateinit var temporaryStorageItemBinding: TemporaryStorageItemBinding
     private lateinit var context: Context
-    var storageDataList = ArrayList<TodoListData?>()
+    var storageDataList : MutableList<TodoListData?> = mutableListOf()
+    var trashDataList : MutableList<TodoListData?> = mutableListOf()
+    var deleteTempServerData : String? = null
     private var todoAdapter: TodoAdapter? = null
 
     //데이터 연결
@@ -31,7 +33,7 @@ class TemporaryStorageAdapter : RecyclerView.Adapter<TemporaryStorageAdapter.Tem
     inner class TempViewHolder(private val binding : TemporaryStorageItemBinding) : RecyclerView.ViewHolder(binding.root) {
         private var position : Int? = null
         private var tempContent = temporaryStorageItemBinding.tempContent
-        private var tempRemove = temporaryStorageItemBinding.tempRemove
+        //private var tempRemove = temporaryStorageItemBinding.tempRemove
 
         fun bind(storageData: TodoListData, position : Int) {
             this.position = position
@@ -42,16 +44,7 @@ class TemporaryStorageAdapter : RecyclerView.Adapter<TemporaryStorageAdapter.Tem
                     removeData(this.layoutPosition)
                 }
             }*/
-            tempRemove.setOnClickListener {
-                removeData(this.layoutPosition)
-                todoAdapter = TodoAdapter()
 
-                //새로운 어댑터 생성이라 데이터가 안넘어옴
-                //println(todoAdapter!!.testData)
-                //removeServerData(storageDataList[this.layoutPosition]!!.api_id)
-                println("id"+storageDataList[this.layoutPosition]!!.api_id)
-                println("content"+storageDataList[this.layoutPosition]!!.content)
-            }
         }
     }
 
@@ -62,7 +55,29 @@ class TemporaryStorageAdapter : RecyclerView.Adapter<TemporaryStorageAdapter.Tem
     }
 
     override fun onBindViewHolder(holder: TempViewHolder, position: Int) {
-        holder.bind(storageDataList[position]!!, position)
+        holder.bind(storageDataList[holder.adapterPosition]!!, position)
+
+        temporaryStorageItemBinding.tempRemove.setOnClickListener {
+            deleteTempServerData = storageDataList[holder.adapterPosition!!]!!.api_id
+            val t = storageDataList[holder.adapterPosition]!!.api_id
+            //todoAdapter = TodoAdapter()
+            println("lp" + holder.adapterPosition)
+            println("ss"+storageDataList.size)
+            storageDataList.forEach { i ->
+                println(i)
+            }
+            println("ts" + trashDataList.size)
+            trashDataList.forEach { j ->
+                println(j)
+            }
+            //새로운 어댑터 생성이라 데이터가 안넘어옴
+            //println(todoAdapter!!.testData)
+            //removeServerData(storageDataList[this.layoutPosition]!!.api_id)
+            println("id"+storageDataList[holder.adapterPosition]!!.api_id)
+            println("content"+storageDataList[holder.adapterPosition]!!.content)
+            removeData(holder.adapterPosition)
+            removeServerData(storageDataList[holder.adapterPosition]!!.api_id)
+        }
     }
 
     override fun getItemCount(): Int {

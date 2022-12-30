@@ -25,10 +25,10 @@ class TemporaryStorageActivity : AppCompatActivity() {
     private val RESULT_TEST = 2
     private lateinit var temporaryStorageBinding: ActivityTemporaryStorageBinding
     private var temporaryStorageAdapter : TemporaryStorageAdapter? = null
-    private var tempStorage = ArrayList<TodoListData?>() //recyclerview 데이터
+    private var tempStorage : MutableList<TodoListData?> = mutableListOf()//ArrayList<TodoListData?>() //recyclerview 데이터
     private lateinit var trashTempDataList : List<TodoListData>
     private var manager : LinearLayoutManager = LinearLayoutManager(this)
-    private var tempItem : ArrayList<TodoListData?> = ArrayList() //받기
+    private var tempItem : MutableList<TodoListData?> = mutableListOf() //: ArrayList<TodoListData?> = ArrayList() //받기
     //뒤로가기 이벤트
     var backPressedTime : Long = 0
 
@@ -45,43 +45,38 @@ class TemporaryStorageActivity : AppCompatActivity() {
 
 
         trashDataSet()
-
-
-        val type = intent.getStringExtra("type")
-
-
         initStorageRecyclerView()
+
         //뒤로 가기 버튼(setDisplayHomeAsUpEnabled)을 만드는 코드
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
+        val type = intent.getStringExtra("type")
         //받는거 하나 보여주는 거 하나 따로..?->ArrayList 로 해결
         if (type.equals("delete")) {
             tempItem = intent.getSerializableExtra("item") as ArrayList<TodoListData?>
-            tempStorage.addAll(tempItem)
+            //tempStorage.addAll(tempItem)
         }
 
 
 
         temporaryStorageBinding.testData.setOnClickListener {
-            println(tempStorage)
-
+            tempStorage.forEach { i->
+                println("temtep"+"$i")
+            }
+            println("s" + tempStorage.size)
+            println("sl" + trashTempDataList.size)
+            println("?" + temporaryStorageAdapter!!.storageDataList.size)
             //temporaryStorageAdapter!!.storageData = dataSet()
         }
 
 
-        if (temporaryStorageAdapter!!.storageDataList.size == 0) {
-            temporaryStorageBinding.nullTv.visibility = View.VISIBLE
-        } else {
-            println(temporaryStorageAdapter!!.storageDataList.size)
-            temporaryStorageBinding.nullTv.visibility = View.GONE
-        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             android.R.id.home -> {
                 val intent = Intent().apply {
-                    putExtra("DELETE", temporaryStorageAdapter!!.storageDataList)
+                    putExtra("DELETE", temporaryStorageAdapter!!.storageDataList as ArrayList<TodoListData?>)
                     putExtra("flag", 2)
                 }
                 setResult(RESULT_TEST, intent)
@@ -96,7 +91,7 @@ class TemporaryStorageActivity : AppCompatActivity() {
         //2.5초이내에 한 번 더 뒤로가기 클릭 시
         if (System.currentTimeMillis() - backPressedTime < 2500) {
             val intent = Intent().apply {
-                putExtra("DELETE", temporaryStorageAdapter!!.storageDataList)
+                putExtra("DELETE", temporaryStorageAdapter!!.storageDataList as ArrayList<TodoListData?>)
                 putExtra("flag", 2)
             }
             setResult(RESULT_TEST, intent)
@@ -113,10 +108,14 @@ class TemporaryStorageActivity : AppCompatActivity() {
             override fun onResponse(call: Call<MyResponse>, response: Response<MyResponse?>) {
                 if (response.isSuccessful) {
                     //데이터 불러오기가 완료되면
-
+                    tempStorage.clear()
                     //통신 성공
                     trashTempDataList = response.body()!!.data.todos
 
+                    trashTempDataList.forEach {
+                        tempStorage.add(it)
+                    }
+                    temporaryStorageAdapter!!.notifyDataSetChanged()
 
                     /*trashTempDataList.forEach {
                         //data.add(it)
@@ -124,13 +123,22 @@ class TemporaryStorageActivity : AppCompatActivity() {
                         tempStorage.add(it)
                     }*/
 
-                    CoroutineScope(Dispatchers.IO).launch {
+                    /*CoroutineScope(Dispatchers.IO).launch {
                         for (list in trashTempDataList) {
                             tempStorage.add(list)
                         }
-                    }
+                    }*/
 
-                    temporaryStorageAdapter!!.notifyDataSetChanged()
+
+
+                    /*CoroutineScope(Dispatchers.Main).launch {
+                        if (tempStorage.size == 0) {
+                            temporaryStorageBinding.nullTv.visibility = View.VISIBLE
+                        } else {
+                            //println(temporaryStorageAdapter!!.storageDataList.size)
+                            temporaryStorageBinding.nullTv.visibility = View.GONE
+                        }
+                    }*/
 
                 } else {
                     //통신 실패
@@ -149,6 +157,7 @@ class TemporaryStorageActivity : AppCompatActivity() {
         temporaryStorageAdapter = TemporaryStorageAdapter()
         //tempStorage = temporaryStorageAdapter!!.storageData
         temporaryStorageAdapter!!.storageDataList = tempStorage
+        temporaryStorageAdapter!!.trashDataList = tempStorage
         temporaryStorageBinding.temporaryStorageRecyclerview.adapter = temporaryStorageAdapter
         temporaryStorageBinding.temporaryStorageRecyclerview.layoutManager = manager
     }
