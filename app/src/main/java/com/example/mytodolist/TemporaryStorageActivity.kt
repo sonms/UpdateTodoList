@@ -52,10 +52,11 @@ class TemporaryStorageActivity : AppCompatActivity() {
 
         val type = intent.getStringExtra("type")
         //받는거 하나 보여주는 거 하나 따로..?->ArrayList 로 해결
-        if (type.equals("delete")) {
+        //->어차피 서버에서 받아올 거니 삭제
+        /*if (type.equals("delete")) {
             tempItem = intent.getSerializableExtra("item") as ArrayList<TodoListData?>
             //tempStorage.addAll(tempItem)
-        }
+        }*/
 
 
 
