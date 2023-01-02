@@ -82,6 +82,7 @@ class CalendarFragment : Fragment() {
     private var dot_m : Int = 0
     private var dot_d : Int = 0
     private var defaultData : ArrayList<ScheduleData?> = ArrayList()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -151,7 +152,7 @@ class CalendarFragment : Fragment() {
                 //최초로 1회만 targetday 디폴트 세팅
                 //조건이 참인 경우만 반복 실행이니 조건을 false로
                 do {
-                    testScheduleData3.put(targetDay, defaultData)
+                    testScheduleData3[targetDay] = defaultData
                 } while (testScheduleData3.containsKey("false"))
                 println(testScheduleData3)
             }
@@ -188,8 +189,8 @@ class CalendarFragment : Fragment() {
 
     private fun initScheduleRecyclerview() {
         scheduleAdapter = ScheduleAdapter()
-        //scheduleAdapter!!.scheduleData = addScheduleData
-        scheduleAdapter!!.testScheduleData = testScheduleData3
+        scheduleAdapter!!.scheduleData = addScheduleData
+        //scheduleAdapter!!.testScheduleData = testScheduleData3
         calendarBinding.shceduleRecyclerview.adapter = scheduleAdapter
         //calendarBinding.scheduleViewpager2.orientation = ViewPager2.ORIENTATION_HORIZONTAL
         calendarBinding.shceduleRecyclerview.layoutManager = manager
