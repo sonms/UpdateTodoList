@@ -119,7 +119,7 @@
         app:layout_constraintTop_toTopOf="@id/fabMenu"
         app:tint="@color/white" />
 
-    <!--borderwidth=태두리조정, backgourndTind=이걸로 floating색조정-->
+    <!--borderwidth=태두리조정, backgourndTint=이걸로 floating색조정-->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabMenu"
         android:layout_width="wrap_content"

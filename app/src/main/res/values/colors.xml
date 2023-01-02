@@ -11,4 +11,5 @@
     <color name="background">#11999e</color>
     <color name="colorAccent">#BC40FF</color>
     <color name="searchBar">#FFFFFFFF</color>
+    <color name="cardColor">#00BCD4</color>
 </resources>

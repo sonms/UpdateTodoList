@@ -18,6 +18,8 @@ class EditActivity : AppCompatActivity() {
     private lateinit var editBinding: ActivityEditBinding
     private var id = 0
     private var eTodo : TodoListData? = null
+    //상태유지
+    var sharedPref : SharedPref? = null
 
     //데이터 통신
     val retrofit = Retrofit.Builder().baseUrl("https://waffle.gq")
@@ -27,6 +29,14 @@ class EditActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        sharedPref = this?.let { SharedPref(it) }
+        if (sharedPref!!.loadNightModeState()) {
+            this?.setTheme(R.style.darktheme)
+        } else {
+            this?.setTheme(R.style.AppTheme)
+        }
+
         editBinding = ActivityEditBinding.inflate(layoutInflater)
         setContentView(editBinding.root)
 

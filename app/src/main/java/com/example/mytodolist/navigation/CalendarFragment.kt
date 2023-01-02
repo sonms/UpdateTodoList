@@ -77,7 +77,7 @@ class CalendarFragment : Fragment() {
     private var addScheduleData : MutableList<ScheduleData?> = mutableListOf()
     private var testScheduleData2 : HashMap<String, ArrayList<ScheduleData?>> = HashMap()
     private var testScheduleData3 : HashMap<String, ArrayList<ScheduleData?>> = HashMap()
-    private var targetDay : String = ""
+    private var targetDay : String? = null
     private var dot_y : Int = 0
     private var dot_m : Int = 0
     private var dot_d : Int = 0
@@ -145,14 +145,14 @@ class CalendarFragment : Fragment() {
                 testScheduleData3[targetDay] = testScheduleData2[targetDay]!!
             }*/
             if (testScheduleData3.containsKey(targetDay)) {
-                testScheduleData3[targetDay] = testScheduleData2[targetDay]!!
+                testScheduleData3[targetDay!!] = testScheduleData2[targetDay]!!
                 println(testScheduleData3)
                 //scheduleAdapter!!.notifyDataSetChanged()
             } else {
                 //최초로 1회만 targetday 디폴트 세팅
                 //조건이 참인 경우만 반복 실행이니 조건을 false로
                 do {
-                    testScheduleData3[targetDay] = defaultData
+                    testScheduleData3[targetDay!!] = defaultData
                 } while (testScheduleData3.containsKey("false"))
                 println(testScheduleData3)
             }
@@ -160,13 +160,17 @@ class CalendarFragment : Fragment() {
         })
 
         calendarBinding.scheduleFabAdd.setOnClickListener {
-            val intent = Intent(activity, ScheduleEditActivity::class.java).apply {
-                putExtra("type","schedule")
-                putExtra("time", targetDay)
-            }
-            requestActivity.launch(intent)
+            if (targetDay != null) {
+                val intent = Intent(activity, ScheduleEditActivity::class.java).apply {
+                    putExtra("type","schedule")
+                    putExtra("time", targetDay)
+                }
+                requestActivity.launch(intent)
 
-            scheduleAdapter!!.notifyDataSetChanged()
+                scheduleAdapter!!.notifyDataSetChanged()
+            } else {
+                Toast.makeText(activity, "날짜를 선택해 주세요!", Toast.LENGTH_SHORT).show()
+            }
         }
 
         val startDate = CalendarDay.from(currentYear, currentMonth, currentDate)
@@ -221,7 +225,7 @@ class CalendarFragment : Fragment() {
                 3 -> {
                     CoroutineScope(Dispatchers.IO).launch {
                         addScheduleData.add(schedule)
-                        testScheduleData2[targetDay] = addScheduleData as ArrayList<ScheduleData?>
+                        testScheduleData2[targetDay!!] = addScheduleData as ArrayList<ScheduleData?>
                     }
                     Toast.makeText(activity, "추가되었습니다.", Toast.LENGTH_SHORT).show()
                 }

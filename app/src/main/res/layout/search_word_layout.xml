@@ -12,6 +12,7 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:focusable="true"
+        android:background="@drawable/search_word_background"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -43,6 +44,7 @@
                 android:gravity="center"
                 android:text="Search"
                 android:textStyle="bold"
+                android:textColor="?attr/textcolor"
                 />
 
             <ImageView

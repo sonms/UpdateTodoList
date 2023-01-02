@@ -29,15 +29,25 @@ class SearchActivity : AppCompatActivity() {
     private val RESULT_SEARCH = 4
     var searchId = 0
     var sharedPref : SharedPref? = null
+    var themeSharedPref : SharedPref? = null
     private var setKey = "setting_search_history"
     private var isEnter = true
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        themeSharedPref = this?.let { SharedPref(it) }
+        if (themeSharedPref!!.loadNightModeState()) {
+            this?.setTheme(R.style.darktheme)
+        } else {
+            this?.setTheme(R.style.AppTheme)
+        }
         mBinding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
 
         sharedPref = SharedPref(this)
+
+
 
         initWordRecyclerView()
         getHistory()

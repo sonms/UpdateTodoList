@@ -26,10 +26,17 @@ class ScheduleEditActivity : AppCompatActivity() {
     private var id = 0
     private var scheduleContent : ScheduleData? = null
     private lateinit var setAlarmTime : Calendar
-
+    //상태유지
+    var sharedPref : SharedPref? = null
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        sharedPref = this?.let { SharedPref(it) }
+        if (sharedPref!!.loadNightModeState()) {
+            this?.setTheme(R.style.darktheme)
+        } else {
+            this?.setTheme(R.style.AppTheme)
+        }
         scheduleEditBinding = ActivityScheduleEditBinding.inflate(layoutInflater)
         setContentView(scheduleEditBinding.root)
 

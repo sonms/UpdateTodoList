@@ -15,6 +15,7 @@
         <item name="bottomnavibackground">#FFFFFF</item>
         <item name="floatbutton">#4E5DB3</item>
         <item name="modeselect">#000000</item>
+        <item name="cardColor">#00BCD4</item>
     </style>
 
 
@@ -32,6 +33,7 @@
         <item name="bottomnavibackground">#212121</item>
         <item name="floatbutton">#1A1A1B</item>
         <item name="modeselect">#FCFCFC</item>
+        <item name="cardColor">#3D4155</item>
     </style>
 
     <style name="dialogStyle" parent="Theme.AppCompat.Light.Dialog">
@@ -42,4 +44,7 @@
         <item name="android:background">?attr/modeselect</item>
     </style>
 
+    <style name="layoutTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:background">?attr/backgroundcolor1</item>
+    </style>
 </resources>
