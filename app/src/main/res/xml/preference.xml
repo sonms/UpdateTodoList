@@ -40,4 +40,16 @@
             />
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:title="계정 정보"
+        android:layout="@layout/preferences_style"
+        >
+        <Preference
+            android:key="logout"
+            android:title="로그아웃"
+            android:summary="클릭 시 로그아웃 합니다."
+            />
+    </PreferenceCategory>
+
+
 </PreferenceScreen>

@@ -1,23 +1,22 @@
 package com.example.mytodolist.navigation
 
+import android.R.attr.button
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.widget.Toast
-import androidx.appcompat.app.ActionBar
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
-import androidx.preference.SwitchPreference
 import androidx.preference.SwitchPreferenceCompat
+import com.example.mytodolist.LoginActivity
 import com.example.mytodolist.MainActivity
 import com.example.mytodolist.R
 import com.example.mytodolist.SharedPref
 import com.example.mytodolist.databinding.FragmentAccountBinding
+import com.google.firebase.auth.FirebaseAuth
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -43,8 +42,8 @@ class AccountFragment : PreferenceFragmentCompat() {
     var themePreference : SwitchPreferenceCompat? = null
     var nicknamePreference : Preference? = null
     var noticePreference : Preference? = null
+    var logoutPreference : Preference? = null
     var nickname : String? = null
-    var actionbar : android.app.ActionBar? = null
     var nicknamePref : SharedPref? = null
 
     /*override fun onCreate(savedInstanceState: Bundle?) {
@@ -132,7 +131,7 @@ class AccountFragment : PreferenceFragmentCompat() {
         themePreference!!.setOnPreferenceChangeListener { preference, newValue ->
             var isChecked = false
             if (newValue as Boolean) {
-                isChecked = newValue as Boolean
+                isChecked = newValue
             }
             if (isChecked) {
                 preferenceManager.sharedPreferences.edit().putBoolean("themeKey", true).apply()
@@ -168,6 +167,28 @@ class AccountFragment : PreferenceFragmentCompat() {
             nicknamePreference?.summary = "현재 설정된 닉네임은 $nickname 입니다"
         }
 
+        logoutPreference = preferenceManager.findPreference("logout")
+        if (logoutPreference != null) {
+            logoutPreference!!.setOnPreferenceClickListener {
+                var auth: FirebaseAuth? = null
+                //로그아웃
+                auth = FirebaseAuth.getInstance()
+                auth?.signOut()
+
+                //로그아웃되었으니 로그인 화면으로 돌아감
+                val intent = Intent(activity, LoginActivity::class.java)
+                //상위 스택제거
+                //실행하는 액티비티가 스택에 있으면 새로 시작하지 않고 상위 스택 모두 제거.
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                startActivity(intent)
+                return@setOnPreferenceClickListener true
+            }
+        }
+
+
+        /*logoutPreference.setOnPreferenceChangeListener {
+
+        }*/
         //themePreference!!.setOnPreferenceChangeListener(prefListener)
     }
     
@@ -188,6 +209,9 @@ class AccountFragment : PreferenceFragmentCompat() {
                     (activity as MainActivity).setActionBarTitle("$nickname 의 TodoList")
                 }
                 nicknamePreference?.summary = "현재 설정된 닉네임은 $nickname 입니다"
+            }
+            "logout" -> {
+                println("logout")
             }
         }
     }
