@@ -101,31 +101,7 @@ class TodoAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
                 itemClickListener.onClick(it,layoutPosition,listData[layoutPosition]!!.position)
             }
 
-            todoItemBinding.removeIv.setOnClickListener {
-                val builder : AlertDialog.Builder = AlertDialog.Builder(context)
-                val ad : AlertDialog = builder.create()
-                var deleteData = listData[this.layoutPosition]!!.content
-                builder.setTitle(deleteData)
-                builder.setMessage("정말로 삭제하시겠습니까?")
 
-                builder.setNegativeButton("예",
-                    DialogInterface.OnClickListener { dialog, which ->
-                        ad.dismiss()
-                        temp = listData[this.layoutPosition]!!
-                        //extraditeData()
-                        testData.add(temp)
-                        deleteServerData = tempServerData[this.layoutPosition]!!.api_id
-                        removeData(this.layoutPosition)
-                        removeServerData(deleteServerData!!)
-                        println(deleteServerData)
-                    })
-
-                builder.setPositiveButton("아니오",
-                    DialogInterface.OnClickListener { dialog, which ->
-                        ad.dismiss()
-                    })
-                builder.show()
-            }
         }
     }
 
@@ -160,6 +136,31 @@ class TodoAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
             //val content : TodoListData = listData[holder.layoutPosition]!!
             //holder.tv_todoText.text = content.content
             //holder.bind(filterContent[position]!!, position)
+            todoItemBinding.removeIv.setOnClickListener {
+                val builder : AlertDialog.Builder = AlertDialog.Builder(context)
+                val ad : AlertDialog = builder.create()
+                var deleteData = listData[holder.adapterPosition]!!.content
+                builder.setTitle(deleteData)
+                builder.setMessage("정말로 삭제하시겠습니까?")
+
+                builder.setNegativeButton("예",
+                    DialogInterface.OnClickListener { dialog, which ->
+                        ad.dismiss()
+                        temp = listData[holder.adapterPosition]!!
+                        //extraditeData()
+                        testData.add(temp)
+                        deleteServerData = tempServerData[holder.adapterPosition]!!.api_id
+                        removeData(holder.adapterPosition)
+                        removeServerData(deleteServerData!!)
+                        println(deleteServerData)
+                    })
+
+                builder.setPositiveButton("아니오",
+                    DialogInterface.OnClickListener { dialog, which ->
+                        ad.dismiss()
+                    })
+                builder.show()
+            }
         } else {
 
         }

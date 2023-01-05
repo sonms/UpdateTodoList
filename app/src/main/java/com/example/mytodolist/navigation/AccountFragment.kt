@@ -4,6 +4,7 @@ import android.R.attr.button
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -174,6 +175,8 @@ class AccountFragment : PreferenceFragmentCompat() {
                 //로그아웃
                 auth = FirebaseAuth.getInstance()
                 auth?.signOut()
+
+                Toast.makeText(activity, "로그아웃되었습니다!", Toast.LENGTH_SHORT).show()
 
                 //로그아웃되었으니 로그인 화면으로 돌아감
                 val intent = Intent(activity, LoginActivity::class.java)
