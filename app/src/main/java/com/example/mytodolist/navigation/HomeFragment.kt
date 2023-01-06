@@ -653,6 +653,7 @@ class HomeFragment : Fragment() {
             val handler = Handler(Looper.getMainLooper())
             handler.postDelayed({
                 dataSet()
+                homeBinding.searchNotTv.visibility = View.GONE
                 //다시 가져온 데이터를 바탕으로 입력해줌
                 todoAdapter!!.listData = data
                 homeBinding.recyclerView.startLayoutAnimation()

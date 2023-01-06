@@ -69,30 +69,12 @@ class TemporaryStorageActivity : AppCompatActivity() {
             tempStorage.forEach { i->
                 println("temtep"+"$i")
             }
-            setAlarmTime = Calendar.getInstance()
-
-            setAlarmTime.set(Calendar.HOUR_OF_DAY, 11)
-            setAlarmTime.set(Calendar.MINUTE, 55)
-            setAlarmTime.set(Calendar.SECOND, 0)
-            startAlarm()
-            println(setAlarmTime.time)
             //temporaryStorageAdapter!!.storageData = dataSet()
         }
 
 
     }
-    //알림 설정
-    private fun startAlarm() {
-        var alarmManager : AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        var intent = Intent(this, AlertReceiver::class.java)
-
-        //intent를 당장 수행하지 않고 특정시점에 수행하도록 미룰 수 있는 intent
-        var pendingIntent = PendingIntent.getBroadcast(this, 1, intent, 0)
-
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, setAlarmTime.timeInMillis, pendingIntent)
-
-    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
@@ -183,5 +165,4 @@ class TemporaryStorageActivity : AppCompatActivity() {
         temporaryStorageBinding.temporaryStorageRecyclerview.adapter = temporaryStorageAdapter
         temporaryStorageBinding.temporaryStorageRecyclerview.layoutManager = manager
     }
-
 }
