@@ -75,7 +75,9 @@ class CalendarFragment : Fragment() {
     private lateinit var calendarAdapter : CalendarAdapter
     private var monthDate : ArrayList<String> = ArrayList()*/
     private var addScheduleData : MutableList<ScheduleData?> = mutableListOf()
+    //edit에서 가져온 데이터를 저장
     private var testScheduleData2 : HashMap<String, ArrayList<ScheduleData?>> = HashMap()
+    //진짜 넘겨줄 데이터
     private var testScheduleData3 : HashMap<String, ArrayList<ScheduleData?>> = HashMap()
     private var targetDay : String? = null
     private var dot_y : Int = 0
@@ -139,14 +141,25 @@ class CalendarFragment : Fragment() {
 
 
             //데이터 추가
-
-
             /*if (testScheduleData2.size > 0) {
                 testScheduleData3[targetDay] = testScheduleData2[targetDay]!!
             }*/
-            if (testScheduleData3.containsKey(targetDay)) {
+
+            //만약 선택한 날짜가 key에 있다면
+            //선택한 날짜에 해당하는 값을 2에서 3으로 넣어줌
+            //당연하게도 데이터베이스 또는 liveData사용해야겠다
+            if (testScheduleData2.containsKey(targetDay)) {
                 testScheduleData3[targetDay!!] = testScheduleData2[targetDay]!!
-                println(testScheduleData3)
+                CoroutineScope(Dispatchers.IO).launch {
+                    scheduleAdapter!!.scheduleData.clear()
+                    scheduleAdapter!!.scheduleData = testScheduleData2[targetDay!!]!!
+                }
+
+                scheduleAdapter!!.notifyDataSetChanged()
+
+                println("sd" + scheduleAdapter!!.scheduleData)
+                println("2"+testScheduleData2)
+                println("3"+testScheduleData3)
                 //scheduleAdapter!!.notifyDataSetChanged()
             } else {
                 //최초로 1회만 targetday 디폴트 세팅
@@ -193,8 +206,8 @@ class CalendarFragment : Fragment() {
 
     private fun initScheduleRecyclerview() {
         scheduleAdapter = ScheduleAdapter()
-        scheduleAdapter!!.scheduleData = addScheduleData
-        //scheduleAdapter!!.testScheduleData = testScheduleData3
+        //scheduleAdapter!!.scheduleData = addScheduleData
+        scheduleAdapter!!.testScheduleData = testScheduleData3
         calendarBinding.shceduleRecyclerview.adapter = scheduleAdapter
         //calendarBinding.scheduleViewpager2.orientation = ViewPager2.ORIENTATION_HORIZONTAL
         calendarBinding.shceduleRecyclerview.layoutManager = manager
