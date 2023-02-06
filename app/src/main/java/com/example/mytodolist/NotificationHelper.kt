@@ -42,6 +42,7 @@ class NotificationHelper(context : Context?) : ContextWrapper(context) {
     }
 
     //notification 설정
+    //받은 내용을 토대로 알람
     fun getChannelNotification(time : String?, content : String?) : NotificationCompat.Builder {
         println(time)
         println(content)
